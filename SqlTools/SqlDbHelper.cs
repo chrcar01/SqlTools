@@ -21,18 +21,6 @@ namespace SqlTools
 			_connectionString = connectionString;
 		}
 
-		/// <summary>
-		/// The specified select statement is run inside a sql EXISTS clause to
-		/// determine if anything exists.
-		/// </summary>
-		/// <param name="selectStatement">The select statement.</param>
-		/// <returns></returns>
-		public bool Exists(string selectStatement)
-		{
-			string internalSelect = "if exists(" + selectStatement + ") select 1 else select 0";
-			int result = ExecuteScalar<int>(internalSelect);
-			return result == 1;
-		}
 
 		private string _connectionString;
 		/// <summary>

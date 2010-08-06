@@ -9,13 +9,6 @@ namespace SqlTools
 	public interface IDbHelper : IDbHelperTuple, IDbHelperMap
 	{
 		/// <summary>
-		/// The specified select statement is run inside a sql EXISTS clause to
-		/// determine if anything exists.
-		/// </summary>
-		/// <param name="selectStatement">The select statement.</param>
-		/// <returns></returns>
-		bool Exists(string selectStatement);
-		/// <summary>
 		/// Gets the connection string for the database.
 		/// </summary>
 		string ConnectionString { get; }
