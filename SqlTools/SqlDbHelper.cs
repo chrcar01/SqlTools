@@ -276,9 +276,7 @@ namespace SqlTools
 			{
 				while (reader.Read())
 				{
-					var tuple = new Tuple<TFirst, TSecond>();
-					if (!reader.IsDBNull(0)) tuple.First = reader.GetValue<TFirst>(0);
-					if (!reader.IsDBNull(1)) tuple.Second = reader.GetValue<TSecond>(1);
+                    var tuple = new Tuple<TFirst, TSecond>(reader.GetValue<TFirst>(0), reader.GetValue<TSecond>(1));
 					tuples.Add(tuple);
 				}
 			}
@@ -297,10 +295,7 @@ namespace SqlTools
 			{
 				while (reader.Read())
 				{
-					var tuple = new Tuple<TFirst, TSecond, TThird>();
-					if (!reader.IsDBNull(0)) tuple.First = reader.GetValue<TFirst>(0);
-					if (!reader.IsDBNull(1)) tuple.Second = reader.GetValue<TSecond>(1);
-					if (!reader.IsDBNull(2)) tuple.Third = reader.GetValue<TThird>(2);
+                    var tuple = new Tuple<TFirst, TSecond, TThird>(reader.GetValue<TFirst>(0), reader.GetValue<TSecond>(1), reader.GetValue<TThird>(2));
 					tuples.Add(tuple);
 				}
 			}
