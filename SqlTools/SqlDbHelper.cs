@@ -82,7 +82,7 @@ namespace SqlTools
 				command.Connection = cn;
 				object queryResult = command.ExecuteScalar();
 				if (queryResult != null)
-					result = (T)command.ExecuteScalar();
+					result = ChangeType<T>(queryResult);
             }
 			return result;
 		}
