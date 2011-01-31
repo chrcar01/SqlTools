@@ -159,5 +159,24 @@ namespace SqlTools
             }
             command.CommandText = command.CommandText.Replace(name, String.Join(",", parameterNames));
         }
+
+		/// <summary>
+		/// Parameterizes the specified command.
+		/// </summary>
+		/// <param name="command">The command.</param>
+		/// <param name="name">The name.</param>
+		/// <param name="values">The values.</param>
+		/// <param name="length">The length.</param>
+		public static void Parameterize(SqlCommand command, string name, string[] values, int length)
+		{
+			var parameterNames = new string[values.Length];
+			for (int i = 0; i < values.Length; i++)
+			{
+				var paramName = name + i;
+				parameterNames[i] = paramName;
+				command.Parameters.Add(paramName, SqlDbType.VarChar, length).Value = values[i];
+			}
+			command.CommandText = command.CommandText.Replace(name, String.Join(",", parameterNames));
+		}
     }
 }
