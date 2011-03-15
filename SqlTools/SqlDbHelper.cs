@@ -81,7 +81,7 @@ namespace SqlTools
             {
 				command.Connection = cn;
 				object queryResult = command.ExecuteScalar();
-				if (queryResult != null)
+				if (queryResult != null && queryResult != DBNull.Value)
 					result = ChangeType<T>(queryResult);
             }
 			return result;
