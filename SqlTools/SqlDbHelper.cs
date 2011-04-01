@@ -402,7 +402,32 @@ namespace SqlTools
 			return result;
 		}
 
+		/// <summary>
+		/// Changes the connection.
+		/// </summary>
+		/// <param name="connectionString">The connection string.</param>
+		public void ChangeConnection(string connectionString)
+		{
+			if (String.IsNullOrEmpty(connectionString))
+				throw new ArgumentException("connectionString is null or empty.", "connectionString");
 
+			_connectionString = connectionString;
+		}
 
+		/// <summary>
+		/// Occurs when [connection changed].
+		/// </summary>
+		public event EventHandler<ConnectionChangedEventArgs> ConnectionChanged;
+
+		/// <summary>
+		/// Raises the connection changed event.
+		/// </summary>
+		/// <param name="oldConnectionString">The old connection string.</param>
+		/// <param name="newConnectionString">The new connection string.</param>
+		protected virtual void RaiseConnectionChanged(string oldConnectionString, string newConnectionString)
+		{
+			if (ConnectionChanged == null) return;
+			ConnectionChanged(this, new ConnectionChangedEventArgs(oldConnectionString, newConnectionString));
+		}
 	}
 }

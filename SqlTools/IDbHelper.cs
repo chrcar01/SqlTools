@@ -88,5 +88,14 @@ namespace SqlTools
 		/// <param name="command">The command to execute.</param>
 		/// <returns>A data reader containing the results of executing the command.</returns>
 		IDataReader ExecuteReader(IDbCommand command);
+		/// <summary>
+		/// Changes the connection.
+		/// </summary>
+		/// <param name="connectionString">The connection string.</param>
+		void ChangeConnection(string connectionString);
+		/// <summary>
+		/// Occurs when [connection changed].
+		/// </summary>
+		event EventHandler<ConnectionChangedEventArgs> ConnectionChanged;
 	}
 }
