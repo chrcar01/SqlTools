@@ -97,5 +97,12 @@ namespace SqlTools
 		/// Occurs when [connection changed].
 		/// </summary>
 		event EventHandler<ConnectionChangedEventArgs> ConnectionChanged;
+		/// <summary>
+		/// Gets or sets the default command timeout in seconds. 
+		/// The default value for this property is the same as the default for SqlCommand's CommandTimeout property.
+		/// </summary>
+		/// <value>The default command timeout in seconds.</value>
+		int DefaultCommandTimeoutInSeconds { get; set; }
+
 	}
 }
