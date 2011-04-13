@@ -17,11 +17,43 @@ namespace SqlTools
 		/// </summary>
 		/// <param name="connectionString"></param>
 		public SqlDbHelper(string connectionString)
+			: this(connectionString, 0)
 		{
-			_connectionString = connectionString;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the SqlDbHelper class.
+		/// </summary>
+		/// <param name="connectionString">The connection string.</param>
+		/// <param name="defaultCommandTimeoutInSeconds">The default command timeout in seconds. The default for this value is whatever SqlCommand.CommandTimeout returns which is usually 30.</param>
+		public SqlDbHelper(string connectionString, int defaultCommandTimeoutInSeconds)
+		{
+			_connectionString = connectionString;
+			_defaultCommandTimeoutInSeconds = defaultCommandTimeoutInSeconds;
+		}
 
+		private int _defaultCommandTimeoutInSeconds = default(int);
+		/// <summary>
+		/// Gets or sets the default command timeout in seconds. 
+		/// The default value for this property is the same as the default for SqlCommand's CommandTimeout property.
+		/// </summary>
+		/// <value>The default command timeout in seconds.</value>
+		public int DefaultCommandTimeoutInSeconds
+		{
+			get
+			{
+				if (_defaultCommandTimeoutInSeconds == default(int))
+				{
+					_defaultCommandTimeoutInSeconds = new SqlCommand().CommandTimeout;
+				}
+				return _defaultCommandTimeoutInSeconds;
+			}
+			set
+			{
+				_defaultCommandTimeoutInSeconds = value;
+			}
+		}
+        
 		private string _connectionString;
 		/// <summary>
 		/// Gets the connection string to the database.
@@ -43,6 +75,7 @@ namespace SqlTools
 			return this.GetConnection(InitialConnectionStates.Open);
 		}
 
+		
 		/// <summary>
 		/// Gets a connection to the database.
 		/// </summary>
@@ -57,6 +90,35 @@ namespace SqlTools
 		}
 
 		/// <summary>
+		/// Creates the command.
+		/// </summary>
+		/// <param name="commandText">The command text.</param>
+		/// <returns></returns>
+		private IDbCommand CreateCommand(string commandText)
+		{
+			IDbCommand cmd = new SqlCommand(commandText);
+			PrepCommand(cmd, GetConnection());
+			return cmd;
+		}
+
+		private IDbCommand PrepCommand(IDbCommand command)
+		{
+			IDbConnection cn = command.Connection;
+			return PrepCommand(command, cn);
+		}
+
+		private IDbCommand PrepCommand(IDbCommand command, IDbConnection cn)
+		{
+			if (cn != null)
+			{
+				command.Connection = cn;
+			}
+			command.CommandTimeout = DefaultCommandTimeoutInSeconds;
+			return command;
+		}
+
+
+		/// <summary>
 		/// Executes the query, and returns the first column of the first row of the resultset.
 		/// </summary>
 		/// <typeparam name="T">The type of the data returned.</typeparam>
@@ -64,9 +126,10 @@ namespace SqlTools
 		/// <returns>The first column of the first row of the result of executeing the query.</returns>
 		public T ExecuteScalar<T>(string commandText)
 		{
-			IDbCommand cmd = new SqlCommand(commandText);
-			return this.ExecuteScalar<T>(cmd);
+			return this.ExecuteScalar<T>(CreateCommand(commandText));
 		}
+
+		
 
 		/// <summary>
 		/// Executes the command, and returns the first column of the first row of the resultset.
@@ -77,9 +140,9 @@ namespace SqlTools
 		public T ExecuteScalar<T>(IDbCommand command)
 		{
 			T result = default(T);
-			using (SqlConnection cn = (this.GetConnection() as SqlConnection))
+			using (var cn = GetConnection())
             {
-				command.Connection = cn;
+				PrepCommand(command, cn);
 				object queryResult = command.ExecuteScalar();
 				if (queryResult != null && queryResult != DBNull.Value)
 					result = ChangeType<T>(queryResult);
@@ -95,8 +158,7 @@ namespace SqlTools
 		/// <returns>An array of all of the values of the first column of all of the rows in the resultset.</returns>
 		public TItem[] ExecuteArray<TItem>(string commandText)
 		{
-			SqlCommand command = new SqlCommand(commandText);
-			return this.ExecuteArray<TItem>(command);
+			return this.ExecuteArray<TItem>(CreateCommand(commandText));
 		}
 
 		/// <summary>
@@ -130,8 +192,7 @@ namespace SqlTools
 		/// <returns>The number of rows affected.</returns>
 		public int ExecuteNonQuery(string commandText)
 		{
-			SqlCommand command = new SqlCommand(commandText);
-			return this.ExecuteNonQuery(command);
+			return this.ExecuteNonQuery(CreateCommand(commandText));
 		}
 
 		/// <summary>
@@ -141,13 +202,12 @@ namespace SqlTools
 		/// <returns>The number of rows affected.</returns>
 		public int ExecuteNonQuery(IDbCommand command)
 		{
-			int result;
-			using (IDbConnection cn = this.GetConnection())
+			using (var cn = this.GetConnection())
             {
-				command.Connection = cn;
-				result = command.ExecuteNonQuery();
+				PrepCommand(command, cn);
+				return command.ExecuteNonQuery();
             }
-			return result;
+			
 		}
 
 		/// <summary>
@@ -157,8 +217,7 @@ namespace SqlTools
 		/// <returns>DataTable containing the results of executing the query.</returns>
 		public DataTable ExecuteDataTable(string commandText)
 		{
-			SqlCommand command = new SqlCommand(commandText);
-			return this.ExecuteDataTable(command);
+			return this.ExecuteDataTable(CreateCommand(commandText));
 		}
 
 		/// <summary>
@@ -168,10 +227,10 @@ namespace SqlTools
 		/// <returns>DataTable containing the results of executing the command.</returns>
 		public DataTable ExecuteDataTable(IDbCommand command)
 		{
-			DataTable result = new DataTable();
-			using (IDbConnection cn = this.GetConnection())
+			var result = new DataTable();
+			using (var cn = this.GetConnection())
             {
-				command.Connection = cn;
+				PrepCommand(command, cn);
 				using (SqlDataAdapter da = new SqlDataAdapter((SqlCommand)command))
                 {
 					da.Fill(result);
@@ -187,8 +246,7 @@ namespace SqlTools
 		/// <returns>A SqlDataReader containing the resultset.</returns>
 		public IDataReader ExecuteReader(string commandText)
 		{
-			SqlCommand command = new SqlCommand(commandText);
-			return this.ExecuteReader(command);
+			return this.ExecuteReader(CreateCommand(commandText));
 		}
 
 		/// <summary>
@@ -198,7 +256,7 @@ namespace SqlTools
 		/// <returns>A SqlDataReader containing the resultset.</returns>
 		public IDataReader ExecuteReader(IDbCommand command)
 		{
-			command.Connection = this.GetConnection();
+			PrepCommand(command, GetConnection());
 			return command.ExecuteReader();
 		}
 		private TResult ChangeType<TResult>(object value)
@@ -246,8 +304,7 @@ namespace SqlTools
 
 		public IEnumerable<Tuple<TFirst>> ExecuteTuple<TFirst>(string commandText)
 		{
-			var command = new SqlCommand(commandText);
-			return ExecuteTuple<TFirst>(command);
+			return ExecuteTuple<TFirst>(CreateCommand(commandText));
 		}
 
 		public IEnumerable<Tuple<TFirst>> ExecuteTuple<TFirst>(IDbCommand command)
@@ -265,8 +322,7 @@ namespace SqlTools
 
 		public IEnumerable<Tuple<TFirst, TSecond>> ExecuteTuple<TFirst, TSecond>(string commandText)
 		{
-			var command = new SqlCommand(commandText);
-			return ExecuteTuple<TFirst, TSecond>(command);
+			return ExecuteTuple<TFirst, TSecond>(CreateCommand(commandText));
 		}
 
 		public IEnumerable<Tuple<TFirst, TSecond>> ExecuteTuple<TFirst, TSecond>(IDbCommand command)
@@ -285,7 +341,7 @@ namespace SqlTools
 
 		public IEnumerable<Tuple<TFirst, TSecond, TThird>> ExecuteTuple<TFirst, TSecond, TThird>(string commandText)
 		{
-			return ExecuteTuple<TFirst, TSecond, TThird>(new SqlCommand(commandText));
+			return ExecuteTuple<TFirst, TSecond, TThird>(CreateCommand(commandText));
 		}
 
 		public IEnumerable<Tuple<TFirst, TSecond, TThird>> ExecuteTuple<TFirst, TSecond, TThird>(IDbCommand command)
@@ -313,7 +369,7 @@ namespace SqlTools
 		/// <returns></returns>
 		public T ExecuteSingle<T>(string commandText) where T : new()
 		{
-			return ExecuteSingle<T>(new SqlCommand(commandText));			
+			return ExecuteSingle<T>(CreateCommand(commandText));			
 		}
 
 		/// <summary>
@@ -359,7 +415,7 @@ namespace SqlTools
 		/// <returns></returns>
 		public IEnumerable<T> ExecuteMultiple<T>(string commandText) where T : new()
 		{
-			return ExecuteMultiple<T>(new SqlCommand(commandText));
+			return ExecuteMultiple<T>(CreateCommand(commandText));
 		}
 
 		/// <summary>
