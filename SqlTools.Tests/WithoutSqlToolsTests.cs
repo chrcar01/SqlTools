@@ -55,13 +55,27 @@ namespace SqlTools.Tests
 			var connString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
 			var sql = "select count(*) from state";
 			var numberOfStates = 0;
-			using (var cn = new SqlConnection(connString))
-			using (var cmd = new SqlCommand(sql, cn))
+			var cn = new SqlConnection(connString);
+			try
 			{
-				cn.Open();
-				var result = cmd.ExecuteScalar();
-				if (result != System.DBNull.Value)
-					numberOfStates = System.Convert.ToInt32(result);
+				var cmd = new SqlCommand(sql, cn);
+				try
+				{
+					cn.Open();
+					var result = cmd.ExecuteScalar();
+					if (result != System.DBNull.Value)
+						numberOfStates = System.Convert.ToInt32(result);
+				}
+				finally
+				{
+					if (cmd != null)
+						cmd.Dispose();
+				}
+			}
+			finally
+			{
+				if (cn != null)
+					cn.Dispose();
 			}
 			Assert.AreEqual(71, numberOfStates);
 		}
@@ -71,12 +85,34 @@ namespace SqlTools.Tests
 		//	var numberRowsAffected = _helper.ExecuteNonQuery("update state set lastupdated=getdate()");
 		//	Assert.AreEqual(71, numberRowsAffected);
 		//}
-		//[Test]
-		//public void VerifyExecuteMultiple()
-		//{
-		//	var states = _helper.ExecuteMultiple<State>("select * from state");
-		//	Assert.AreEqual(71, states.Count());
-		//}
+		[Test]
+		public void VerifyExecuteMultiple()
+		{
+			var connString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
+			var sql = "select [Code], [Abbreviation], [Name], [Display], [LastUpdated] from state";
+			IEnumerable<State> states = null;
+			using (var cn = new SqlConnection(connString))
+			using (var cmd = new SqlCommand(sql, cn))
+			{
+				cn.Open();
+				using (var reader = cmd.ExecuteReader())
+				{
+					var items = new List<State>();
+					while (reader.Read())
+					{
+						var item = new State();
+						if (!reader.IsDBNull(0)) item.Code = reader.GetString(0);
+						if (!reader.IsDBNull(1)) item.Abbreviation = reader.GetString(1);
+						if (!reader.IsDBNull(2)) item.Name = reader.GetString(2);
+						if (!reader.IsDBNull(3)) item.Display = reader.GetString(3);
+						if (!reader.IsDBNull(4)) item.LastUpdated = reader.GetDateTime(4);
+						items.Add(item);
+					}
+					states = items;
+				}
+			}
+			Assert.AreEqual(71, states.Count());
+		}
 		//[Test]
 		//public void VerifyExecuteMultipleIsCaseInsensitive()
 		//{

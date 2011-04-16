@@ -86,11 +86,60 @@ finally
 var numberOfStates = _helper.ExecuteScalar<int>("select count(*) from state");
 </pre>
 
-# Complex Type Mapping
+# Type Mapping
 
 ## Sample Database
 
 I have a sample database I use for testing this stuff out.  Below is a diagram of [the sample database](https://github.com/chrcar01/SqlTools/blob/master/SqlTools.sql).  
 
 ![Sample Database Diagram](https://github.com/chrcar01/SqlTools/raw/master/dbdiagram.png)
+
+Let's say you have a simple class like this:
+
+<pre>
+public class State
+{
+	public string Code { get; set; }
+	public string Abbreviation { get; set; }
+	public string Name { get; set; }
+	public string Display { get; set; }
+	public DateTime? LastUpdated { get; set; }        
+}
+</pre>
+
+and you want it populated with all of the data in the **state** table.
+
+## Without SqlTools
+
+<pre>
+var connString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
+var sql = "select [Code], [Abbreviation], [Name], [Display], [LastUpdated] from state";
+IEnumerable<State> states = null;
+using (var cn = new SqlConnection(connString))
+using (var cmd = new SqlCommand(sql, cn))
+{
+	cn.Open();
+	using (var reader = cmd.ExecuteReader())
+	{
+		var items = new List<State>();
+		while (reader.Read())
+		{
+			var item = new State();
+			if (!reader.IsDBNull(0)) item.Code = reader.GetString(0);
+			if (!reader.IsDBNull(1)) item.Abbreviation = reader.GetString(1);
+			if (!reader.IsDBNull(2)) item.Name = reader.GetString(2);
+			if (!reader.IsDBNull(3)) item.Display = reader.GetString(3);
+			if (!reader.IsDBNull(4)) item.LastUpdated = reader.GetDateTime(4);
+			items.Add(item);
+		}
+		states = items;
+	}
+}
+</pre>
+
+## With SqlTools
+
+<pre>
+var states = _helper.ExecuteMultiple<State>("select * from state");
+</pre>
 
