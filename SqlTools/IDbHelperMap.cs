@@ -6,6 +6,9 @@ using System.Data;
 
 namespace SqlTools
 {
+	/// <summary>
+	/// Defines all of the methods used for mapping types to rows in resultsets.
+	/// </summary>
 	public interface IDbHelperMap
 	{
 		/// <summary>

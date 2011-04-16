@@ -2,104 +2,164 @@
 using SqlTools.Tests.Models;
 using System;
 using System.Configuration;
-using System.Data.SqlClient;
 using System.Linq;
+using System.Data.SqlClient;
 
 namespace SqlTools.Tests
 {
-  //  [TestFixture]
-  //  public class SqlDbHelperTests
-  //  {
-		//
-  //      private IDbHelper _helper;
+	[TestFixture]
+	public class SqlDbHelperTests
+	{
+		private IDbHelper _helper;
+		
+		[TestFixtureSetUp]
+		public void InitializeAllTests()
+		{
+			var connectionString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
+			var defaultCommandTimeoutInSeconds = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultCommandTimeoutInSeconds"]);
+			_helper = new SqlDbHelper(connectionString, defaultCommandTimeoutInSeconds);
+		}
+		[Test]
+		public void VerifyChangeConnectionChangesInternalConnectionString()
+		{
+			var helper = new SqlDbHelper("godzilla");
+			Assert.AreEqual("godzilla", helper.ConnectionString);
+			helper.ChangeConnection("mothra");
+			Assert.AreEqual("mothra", helper.ConnectionString);
+		}
+		[Test]
+		[ExpectedException(typeof(ArgumentNullException), UserMessage = "connectionString is null or empty.")]
+		public void ChangeConnectionThrowsArgNullExceptionIfConnectionStringMissing()
+		{
+			_helper.ChangeConnection(String.Empty);
+		}
+		[Test]
+		public void DefaultCommandTimeoutInSecondsShouldDefaultToSqlCommandCommandTimeout()
+		{
+			var helper = new SqlDbHelper("");
+			Assert.AreEqual(helper.DefaultCommandTimeoutInSeconds, new SqlCommand().CommandTimeout);
+		}
+		[Test]
+		public void VerifyExecuteArray()
+		{
+			var stateNames = _helper.ExecuteArray<string>("select name from state");
+			Assert.IsTrue(stateNames.All(x => !String.IsNullOrEmpty(x)));
+			Assert.AreEqual(71, stateNames.Length);
+			var stateCodes = _helper.ExecuteArray<string>("select code from state");
+			Assert.IsTrue(stateCodes.All(x => x.Length == 2));
+		}
+		[Test]
+		public void VerifyExecuteScalar()
+		{
+			var numberOfStates = _helper.ExecuteScalar<int>("select count(*) from state");
+			Assert.AreEqual(71, numberOfStates);
+		}
+		[Test]
+		public void VerifyExecuteNonQuery()
+		{
+			var numberRowsAffected = _helper.ExecuteNonQuery("update state set lastupdated=getdate()");
+			Assert.AreEqual(71, numberRowsAffected);
+		}
+		[Test]
+		public void VerifyExecuteMultiple()
+		{
+			var states = _helper.ExecuteMultiple<State>("select * from state");
+			Assert.AreEqual(71, states.Count());
+		}
+		[Test]
+		public void VerifyExecuteMultipleIsCaseInsensitive()
+		{
+			var states = _helper.ExecuteMultiple<State>("select CoDe, naME from state");
+			Assert.IsTrue(states.All(x => !String.IsNullOrEmpty(x.Code) && !String.IsNullOrEmpty(x.Name)));
+		}
+		[Test]
+		public void VerifyExecuteSingle()
+		{
+			var colorado = _helper.ExecuteSingle<State>("select * from state where code = '08'");
+			Assert.AreEqual("Colorado", colorado.Name);
+			Assert.AreEqual("Colorado", colorado.Display);
+			Assert.AreEqual("CO", colorado.Abbreviation);
+			Assert.AreEqual("08", colorado.Code);		
+		}
 
-  //      [TestFixtureSetUp]
-  //      public void InitializeAllTests()
-  //      {
-  //          _helper = new SqlDbHelper(ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString);
-  //      }
+		[Test]
+		public void VerifyExecuteSingleReturnsTheFirstRow()
+		{
+			// the sql statement below still executes and returns the results of: select * from state, but
+			// only the first result is used.  Important to note, if you only want one row, make sure your
+			// sql only returns one tuple.
+			var state = _helper.ExecuteSingle<State>("select * from state");
+			Assert.AreEqual("AL", state.Abbreviation);
+		}
 
-  //      [Test]
-  //      public void can_get_datatable_from_sql()
-  //      {
-  //          var data = _helper.ExecuteDataTable("select name from blog");
-  //          Assert.AreEqual(1, data.Rows.Count);
-  //          Assert.AreEqual("Killer Thoughts", data.Rows[0][0].ToString());
-  //      }
+		[Test]
+		public void VerifyDbUtilityCanParameterizeQuery()
+		{
+			var includeStateAbbreviations = new string[] { "CO", "TX" };
+			var sql = "select * from state where abbreviation in (@abbreviation)";
+			using (var cmd = new SqlCommand(sql))
+			{
+				// The Parameterize method rewrites the sql to look like this:
+				//		select * from state where abbreviation in (@abbreviation0,@abbreviation1)
+				// Parameterize takes care of setting the correct parameters per item in the list of abbreviations
+				DbUtility.Parameterize(cmd, "@abbreviation", includeStateAbbreviations, 2);
+				Assert.AreEqual(2, cmd.Parameters.Count, "Should have added two parameters");
+				Assert.AreEqual("@abbreviation0", cmd.Parameters[0].ParameterName);
+				Assert.AreEqual("@abbreviation1", cmd.Parameters[1].ParameterName);
+				var states = _helper.ExecuteMultiple<State>(cmd);
+				Assert.AreEqual(2, states.Count());
+			}
+		}
+		[Test]
+		public void VerifyExecuteTupleHandlesCasting()
+		{
+			var rows = _helper.ExecuteTuple<string, DateTime?>("select abbreviation, lastupdated from state");
+			Assert.AreEqual(71, rows.Count());
+			Assert.IsTrue(rows.All(x => !String.IsNullOrEmpty(x.Item1)));
+		}
 
-  //      [Test]
-  //      public void can_get_datatable_from_command()
-  //      {
-  //          string sql = "select * from post where id=@id";
-  //          using (var command = new SqlCommand(sql))
-  //          {
-  //              command.Parameters.Add("@id", System.Data.SqlDbType.Int).Value = 3;
-  //              var data = _helper.ExecuteDataTable(command);
-  //              Assert.AreEqual(1, data.Rows.Count);
-  //              Assert.AreEqual("Future post2", data.Rows[0]["Title"].ToString());
-  //          }
-  //      }
+		[Test]
+		public void VerifyDefaultCommandTimeoutRespectsCustomTimeout()
+		{
+			using (var cmd = new SqlCommand("select * from state"))
+			{
+				cmd.CommandTimeout = 666;
+				_helper.ExecuteNonQuery(cmd);
+				Assert.AreEqual(666, cmd.CommandTimeout);
+			}
+		}
+		[Test]
+		public void VerifyDefaultCommandTimeoutOverridesDefaultSqlCommandCommandTimeout()
+		{
+			using (var cmd = new SqlCommand("select * from state"))
+			{
+				Assert.AreEqual(30, cmd.CommandTimeout);
+				// run it through the dbhelper(this should update the commandtimeout to 60)
+				_helper.ExecuteNonQuery(cmd);
+				Assert.AreEqual(60, cmd.CommandTimeout);
+			}
+		}
+		[Test]
+		public void VerifyDataTable()
+		{
+			var dataTable = _helper.ExecuteDataTable("select code, display from state");
+			Assert.AreEqual(2, dataTable.Columns.Count);
+			Assert.AreEqual("code", dataTable.Columns[0].ColumnName);
+			Assert.AreEqual("display", dataTable.Columns[1].ColumnName);
+			Assert.AreEqual(71, dataTable.Rows.Count);
+		}
 
-  //      [Test]
-  //      public void can_get_single_value_from_sql()
-  //      {
-  //          Assert.AreEqual(2, _helper.ExecuteScalar<int>("select count(*) from post where DatePublished is null"));
-  //      }
-
-  //      [Test]
-  //      public void can_get_single_value_from_command()
-  //      {
-  //          string sql = "select title from post where id=@id";
-  //          using (var command = new SqlCommand(sql))
-  //          {
-  //              command.Parameters.Add("@id", System.Data.SqlDbType.Int).Value = 2;
-  //              Assert.AreEqual("Future post1", _helper.ExecuteScalar<string>(command));
-  //          }
-  //      }
-
-  //      [Test]
-  //      public void can_map_single_model()
-  //      {
-  //          var post = _helper.ExecuteSingle<Post>("select * from post");
-  //          Assert.AreEqual("How to do something cool", post.Title);
-  //          Assert.AreEqual(1, post.BlogID);
-  //          Assert.AreEqual(1, post.ID);
-  //          Assert.AreEqual(Convert.ToDateTime("2010-01-10 09:34:00.000"), post.DatePublished);
-  //          Assert.AreEqual("cool content", post.PostContent);
-  //      }
-
-  //      [Test]
-  //      public void can_map_multiple_models()
-  //      {
-  //          var posts = _helper.ExecuteMultiple<Post>("select * from post");
-  //          Assert.AreEqual(4, posts.Count());
-  //      }
-
-  //      [Test]
-  //      public void can_execute_tuples()
-  //      {
-  //          var tuple1 = _helper.ExecuteTuple<string>("select title from post");
-  //          Assert.AreEqual(4, tuple1.Count());
-  //          Assert.AreEqual("Future post2", tuple1.ElementAt(2).First);
-  //          var tuple2 = _helper.ExecuteTuple<int, string>("select top 1 id, title from post");
-  //          Assert.AreEqual(1, tuple2.Count());
-  //          Assert.AreEqual(1, tuple2.ElementAt(0).First);
-  //          Assert.AreEqual("How to do something cool", tuple2.ElementAt(0).Second);
-  //          var tuple3 = _helper.ExecuteTuple<string, DateTime?, int>("select title, DatePublished, id from post where DatePublished is null");
-  //          Assert.AreEqual(2, tuple3.Count());
-  //          Assert.IsNull(tuple3.ElementAt(0).Second);
-  //      }
-
-  //      [Test]
-  //      public void can_get_datareader_and_use_extension()
-  //      {
-  //          using (var reader = _helper.ExecuteReader("select * from post"))
-  //          {
-  //              while (reader.Read())
-  //              {
-  //                  Assert.IsNotNull(reader.GetValue<int>("ID"));
-  //              }
-  //          }
-  //      }
-  //  }
+		[Test]
+		public void VerifyExecuteArraySkipsNullValuesWhenInstructed()
+		{
+			var middleInitials = _helper.ExecuteArray<string>("select middleinitial from customer", ExecuteArrayOptions.IgnoreNullValues);
+			Assert.AreEqual(1, middleInitials.Length);
+		}
+		[Test]
+		public void VerifyExecuteArrayIncludesNullEntriesByDefault()
+		{
+			var middleInitials = _helper.ExecuteArray<string>("select middleinitial from customer");
+			Assert.AreEqual(2, middleInitials.Length);
+		}
+	}
 }

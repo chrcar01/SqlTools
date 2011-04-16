@@ -37,13 +37,27 @@ namespace SqlTools
 		/// <param name="command">The command to execute.</param>
 		/// <returns>The value in the first column of the first row of the resultset.</returns>
 		T ExecuteScalar<T>(IDbCommand command);
+
 		/// <summary>
 		/// Executes the query, and returns an array of values from the first column of all rows in the resultset.
 		/// </summary>
 		/// <typeparam name="TItem">The type of value in the first column.</typeparam>
 		/// <param name="commandText">The query to execute.</param>
-		/// <returns>An array of values from the first column of all rows in the resultset.</returns>
+		/// <returns>
+		/// An array of values from the first column of all rows in the resultset.
+		/// </returns>
 		TItem[] ExecuteArray<TItem>(string commandText);
+        /// <summary>
+		/// Executes the query, and returns an array of values from the first column of all rows in the resultset.
+		/// </summary>
+		/// <typeparam name="TItem">The type of value in the first column.</typeparam>
+		/// <param name="commandText">The query to execute.</param>
+		/// <param name="options">The options that are applied to how arrays are created.</param>
+		/// <returns>
+		/// An array of values from the first column of all rows in the resultset.
+		/// </returns>
+		TItem[] ExecuteArray<TItem>(string commandText, ExecuteArrayOptions options);
+
 		/// <summary>
 		/// Executes the command, and returns an array of values from the first column of all rows in the resultset.
 		/// </summary>

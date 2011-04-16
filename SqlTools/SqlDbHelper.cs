@@ -113,7 +113,12 @@ namespace SqlTools
 			{
 				command.Connection = cn;
 			}
-			command.CommandTimeout = DefaultCommandTimeoutInSeconds;
+			// Respect user defined CommandTimeout... only use the DefaultCommandTimeoutInSeconds 
+			// if a custom value has not been already set.
+			if (command.CommandTimeout == new SqlCommand().CommandTimeout)
+			{
+				command.CommandTimeout = DefaultCommandTimeoutInSeconds;
+			}
 			return command;
 		}
 
@@ -155,10 +160,26 @@ namespace SqlTools
 		/// </summary>
 		/// <typeparam name="TItem">The type of data in the first column of each row.</typeparam>
 		/// <param name="commandText">The query to execute.</param>
-		/// <returns>An array of all of the values of the first column of all of the rows in the resultset.</returns>
+		/// <returns>
+		/// An array of all of the values of the first column of all of the rows in the resultset.
+		/// </returns>
 		public TItem[] ExecuteArray<TItem>(string commandText)
 		{
-			return this.ExecuteArray<TItem>(CreateCommand(commandText));
+			ExecuteArrayOptions options = ExecuteArrayOptions.None;
+			return ExecuteArray<TItem>(commandText, options);
+		}
+        /// <summary>
+		/// Executes the query and returns an array of all of the values of the first column of all rows in the resultset.
+		/// </summary>
+		/// <typeparam name="TItem">The type of data in the first column of each row.</typeparam>
+		/// <param name="commandText">The query to execute.</param>
+		/// <param name="options">The options that are applied to how arrays are created.</param>
+		/// <returns>
+		/// An array of all of the values of the first column of all of the rows in the resultset.
+		/// </returns>
+		public TItem[] ExecuteArray<TItem>(string commandText, ExecuteArrayOptions options)
+		{
+			return this.ExecuteArray<TItem>(CreateCommand(commandText), options);
 		}
 
 		/// <summary>
@@ -166,19 +187,35 @@ namespace SqlTools
 		/// </summary>
 		/// <typeparam name="TItem">The type of data in the first column of each row.</typeparam>
 		/// <param name="command">The command to execute.</param>
-		/// <returns>An array of all of the values of the first column of all of the rows in the resultset.</returns>
-        public TItem[] ExecuteArray<TItem>(IDbCommand command)
+		/// <returns>
+		/// An array of all of the values of the first column of all of the rows in the resultset.
+		/// </returns>
+		public TItem[] ExecuteArray<TItem>(IDbCommand command)
+		{
+			ExecuteArrayOptions options = ExecuteArrayOptions.None;
+			return ExecuteArray<TItem>(command, options);
+		}
+        /// <summary>
+		/// Executes the command and returns an array of all of the values of the first column of all rows in the resultset.
+		/// </summary>
+		/// <typeparam name="TItem">The type of data in the first column of each row.</typeparam>
+		/// <param name="command">The command to execute.</param>
+		/// <param name="options">The options that are applied to how arrays are created.</param>
+		/// <returns>
+		/// An array of all of the values of the first column of all of the rows in the resultset.
+		/// </returns>
+        public TItem[] ExecuteArray<TItem>(IDbCommand command, ExecuteArrayOptions options)
         {
-            List<TItem> result = new List<TItem>();
-            using (IDataReader reader = this.ExecuteReader(command))
+			var result = new List<TItem>();
+			using (var reader = this.ExecuteReader(command))
             {
                 while (reader.Read())
                 {
-                    object item = reader.GetValue(0);
-                    if (item == System.DBNull.Value || item == null)
+					var item = reader.GetValue(0);
+					if (ExecuteArrayOptions.IgnoreNullValues == options && (item == System.DBNull.Value || item == null))
                         continue;
 
-                    TItem value = ChangeType<TItem>(item);
+					var value = ChangeType<TItem>(item);
                     result.Add(value);
                 }
             }
@@ -302,11 +339,23 @@ namespace SqlTools
 		}
 
 
+		/// <summary>
+		/// Executes the sql and returns a resultset of tuple
+		/// </summary>
+		/// <typeparam name="TFirst">The type of the first.</typeparam>
+		/// <param name="commandText">The command text.</param>
+		/// <returns></returns>
 		public IEnumerable<Tuple<TFirst>> ExecuteTuple<TFirst>(string commandText)
 		{
 			return ExecuteTuple<TFirst>(CreateCommand(commandText));
 		}
 
+		/// <summary>
+		/// Executes command and returns a collection one dimensional tuple.
+		/// </summary>
+		/// <typeparam name="TFirst">The type of the first.</typeparam>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
 		public IEnumerable<Tuple<TFirst>> ExecuteTuple<TFirst>(IDbCommand command)
 		{
 			List<Tuple<TFirst>> tuples = new List<Tuple<TFirst>>();
@@ -465,7 +514,7 @@ namespace SqlTools
 		public void ChangeConnection(string connectionString)
 		{
 			if (String.IsNullOrEmpty(connectionString))
-				throw new ArgumentException("connectionString is null or empty.", "connectionString");
+				throw new ArgumentNullException("connectionString is null or empty.", "connectionString");
 
 			_connectionString = connectionString;
 		}
