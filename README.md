@@ -1,11 +1,24 @@
 # SqlTools
 
-A collection of useful methods for executing simple, non-transactional, sql statements.  Reduces the need to worry about opening and closing connections.  Allows for simple, strongly typed, queries.  Using this library allows developers to worry about the sql and not about lots of plumbing needed to execute the sql.  Stongly typed results are also greatly simplified with automatic case-INsensitive property mapping; specifying a column or alias that matches any property on a custom type, results in the automatic type conversion and assignment of value to that property.
-Test.
+## Purpose
 
-## Without SqlTools
+Even if you're using NHibernate or Entity Framework, or your favorite ORM, sometimes, it's the right decision to execute inline sql in your application.  SqlTools simplifies executing inline sql by handling most of the ADO.NET code needed to perform the task.
 
-## The following code creates a string array of values in the **name** column in the **state** table.
+## SqlTools is not an ORM
+
+It executes sql, does some simple type mapping, and that's it.  It's kept pretty simple by design.
+
+# Examples
+
+## Sample Database
+
+I have a sample database I use for testing this stuff out.  Below is a diagram of [the sample database](https://github.com/chrcar01/SqlTools/blob/master/SqlTools.sql).  
+
+![Sample Database Diagram](https://github.com/chrcar01/SqlTools/raw/master/dbdiagram.png)
+
+## Retrieve the values of a single column as an array
+
+### Without SqlTools
 
 <pre>
 var connString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
@@ -41,15 +54,15 @@ finally
 }
 </pre>
 
-## With SqlTools
+### With SqlTools
 
 <pre>
 var stateNames = _helper.ExecuteArray<string>("select name from state");
 </pre>
 
-## How many rows are in the state table?
+## Retrieve a row count in a table
 
-## Without SqlTools
+### Without SqlTools
 
 
 <pre>
@@ -80,7 +93,7 @@ finally
 }
 </pre>
 
-## With SqlTools
+### With SqlTools
 
 <pre>
 var numberOfStates = _helper.ExecuteScalar<int>("select count(*) from state");
@@ -88,13 +101,7 @@ var numberOfStates = _helper.ExecuteScalar<int>("select count(*) from state");
 
 # Type Mapping
 
-## Sample Database
-
-I have a sample database I use for testing this stuff out.  Below is a diagram of [the sample database](https://github.com/chrcar01/SqlTools/blob/master/SqlTools.sql).  
-
-![Sample Database Diagram](https://github.com/chrcar01/SqlTools/raw/master/dbdiagram.png)
-
-Let's say you have a simple class like this:
+Many times I'll have a class that maps directly to a table or a view.  When I don't need an ORM, mapping up the data in the database to a collection of objects is a little bit of a pain.  Let's say you have a simple class like this:
 
 <pre>
 public class State
@@ -109,7 +116,7 @@ public class State
 
 and you want it populated with all of the data in the **state** table.
 
-## Without SqlTools
+### Without SqlTools
 
 <pre>
 var connString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
@@ -137,7 +144,7 @@ using (var cmd = new SqlCommand(sql, cn))
 }
 </pre>
 
-## With SqlTools
+### With SqlTools
 
 <pre>
 var states = _helper.ExecuteMultiple<State>("select * from state");
