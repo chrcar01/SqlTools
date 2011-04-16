@@ -90,5 +90,7 @@ var numberOfStates = _helper.ExecuteScalar<int>("select count(*) from state");
 
 ## Sample Database
 
-<img src="https://github.com/chrcar01/SqlTools/raw/master/dbdiagram.png" alt="Sample Database Diagram" />
+I have a sample database I use for testing this stuff out.  Below is a diagram of [the sample database](https://github.com/chrcar01/SqlTools/blob/master/SqlTools.sql).  
+
+![Sample Database Diagram](https://github.com/chrcar01/SqlTools/raw/master/dbdiagram.png)
 
