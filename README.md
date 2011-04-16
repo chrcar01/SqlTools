@@ -96,7 +96,7 @@ finally
 ### With SqlTools
 
 <pre>
-var numberOfStates = _helper.ExecuteScalar<int>("select count(*) from state");
+var numberOfStates = _helper.ExecuteScalar&lt;int&gt;("select count(*) from state");
 </pre>
 
 # Type Mapping
@@ -147,6 +147,6 @@ using (var cmd = new SqlCommand(sql, cn))
 ### With SqlTools
 
 <pre>
-var states = _helper.ExecuteMultiple<State>("select * from state");
+var states = _helper.ExecuteMultiple&lt;State&gt;("select * from state");
 </pre>
 
