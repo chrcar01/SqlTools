@@ -12,35 +12,59 @@ namespace SqlTools.Tests
 	public class WithoutSqlToolsTests
 	{		
 		[Test]
-		public void ExecuteArray_ExampleSyntaxWithoutSqlTools()
+		public void ExecuteArray_ExampleSyntaxWithoutSqlTools_WithoutUsingStatements()
 		{
 			var connString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
 			var sql = "select name from state";
 			string[] stateNames = null;
+			var cn = new SqlConnection(connString);
+			try
+			{
+				var cmd = new SqlCommand(sql, cn);
+				try
+				{
+					cn.Open();
+					using (var reader = cmd.ExecuteReader())
+					{
+						var list = new List<string>();
+						while (reader.Read())
+						{
+							list.Add(reader.GetString(0));
+						}
+						stateNames = list.ToArray();
+					}
+				}
+				finally
+				{
+					if (cmd != null)
+						cmd.Dispose();
+				}
+			}
+			finally
+			{
+				if (cn != null)
+					cn.Dispose();
+			}
+			Assert.IsTrue(stateNames.All(x => !String.IsNullOrEmpty(x)));
+			Assert.AreEqual(71, stateNames.Length);
+		}
+
+		[Test]
+		public void VerifyExecuteScalar()
+		{
+			var connString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
+			var sql = "select count(*) from state";
+			var numberOfStates = 0;
 			using (var cn = new SqlConnection(connString))
 			using (var cmd = new SqlCommand(sql, cn))
 			{
 				cn.Open();
-				using (var reader = cmd.ExecuteReader())
-				{
-					var list = new List<string>();
-					while (reader.Read())
-					{
-						list.Add(reader.GetString(0));
-					}
-					stateNames = list.ToArray();
-				}
+				var result = cmd.ExecuteScalar();
+				if (result != System.DBNull.Value)
+					numberOfStates = System.Convert.ToInt32(result);
 			}
-			Assert.AreEqual(71, stateNames.Length);
-			Assert.IsTrue(stateNames.All(x => !String.IsNullOrEmpty(x)));			
+			Assert.AreEqual(71, numberOfStates);
 		}
-
-		//[Test]
-		//public void VerifyExecuteScalar()
-		//{
-		//	var numberOfStates = _helper.ExecuteScalar<int>("select count(*) from state");
-		//	Assert.AreEqual(71, numberOfStates);
-		//}
 		//[Test]
 		//public void VerifyExecuteNonQuery()
 		//{

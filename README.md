@@ -5,6 +5,8 @@ Test.
 
 ## Without SqlTools
 
+Ever need all of values in a single column in a table as an array?  The following code creates a string array of of values in the *name* column in the *state* table.
+
 <pre>
 var connString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
 var sql = "select name from state";
@@ -43,4 +45,40 @@ finally
 
 <pre>
 var stateNames = _helper.ExecuteArray<string>("select name from state");
+</pre>
+
+## Without SqlTools
+
+<pre>
+var connString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
+var sql = "select count(*) from state";
+var numberOfStates = 0;
+var cn = new SqlConnection(connString);
+try
+{
+	var cmd = new SqlCommand(sql, cn);
+	try
+	{
+		cn.Open();
+		var result = cmd.ExecuteScalar();
+		if (result != System.DBNull.Value)
+			numberOfStates = System.Convert.ToInt32(result);
+	}
+	finally
+	{
+		if (cmd != null)
+			cmd.Dispose();
+	}
+}
+finally
+{
+	if (cn != null)
+		cn.Dispose();
+}
+</pre>
+
+## With SqlTools
+
+<pre>
+var numberOfStates = _helper.ExecuteScalar<int>("select count(*) from state");
 </pre>
