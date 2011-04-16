@@ -5,7 +5,7 @@ Test.
 
 ## Without SqlTools
 
-Ever need all of values in a single column in a table as an array?  The following code creates a string array of of values in the **name** column in the **state** table.
+## The following code creates a string array of values in the **name** column in the **state** table.
 
 <pre>
 var connString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
@@ -47,7 +47,10 @@ finally
 var stateNames = _helper.ExecuteArray<string>("select name from state");
 </pre>
 
+## How many rows are in the state table?
+
 ## Without SqlTools
+
 
 <pre>
 var connString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
@@ -82,3 +85,10 @@ finally
 <pre>
 var numberOfStates = _helper.ExecuteScalar<int>("select count(*) from state");
 </pre>
+
+# Complex Type Mapping
+
+## Sample Database
+
+![Sample Database Diagram](https://github.com/chrcar01/SqlTools/blob/master/dbdiagram.png)
+
