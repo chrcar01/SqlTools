@@ -152,3 +152,51 @@ var states = _helper.ExecuteMultiple&lt;State&gt;("select * from state");
 
 # DbUtility
 
+This class used to have methods that helped in writing sql dynamically, but on further inspection I decided that most of the methods were promoting bad code.  So, on that note, I've removed all but the Parameterize method and it's overloads because it's really useful, check it out.
+
+## Expanding a collection of values into parameters in an IN CLAUSE
+
+Let's say we want a list of all states except for Colorado, California, and Texas.  The sql for this might look like the following:
+
+<pre>
+select *
+from state
+where abbreviation not in ('CO','CA','TX')
+</pre>
+
+Now let's say that a user is allowed to pick randomly, what states to exclude.  And let's assume we want to be good developers and use a parameterized query(instead of string concatenating the values).  Using SqlTools here is how this is done.
+
+<pre>
+var excludeTheseStateAbbreviations = new string[] { "CO", "CA", "TX" };
+var sql = "select * from state where abbreviation not in (@abbreviation)";
+using (var cmd = new SqlCommand(sql))
+{
+	DbUtility.Parameterize(cmd, excludeTheseStateAbbreviations, "@abbreviation");
+	var data = _helper.ExecuteDataTable(cmd);
+	Assert.AreEqual(68, data.Rows.Count); //normally 71 states but we excluded 3 of them!
+}
+</pre>
+
+The command that gets sent to sql server using the code above looks like this:
+
+<pre>
+exec sp_executesql 
+N'select * from state where abbreviation not in (@abbreviation0,@abbreviation1,@abbreviation2)',
+N'@abbreviation0 varchar(2),@abbreviation1 varchar(2),@abbreviation2 varchar(2)',
+@abbreviation0='CO',@abbreviation1='CA',@abbreviation2='TX'
+</pre>
+
+## Extension Methods
+
+When I first wrote the SqlTools code, extension methods were not available yet.  Since then I've also added extension methods that map to the same functionality of the DbUtility.Parameterize methods.  So the above example can be rewritten like this:
+
+<pre>
+var excludeTheseStateAbbreviations = new string[] { "CO", "CA", "TX" };
+var sql = "select * from state where abbreviation not in (@abbreviation)";
+using (var cmd = new SqlCommand(sql))
+{
+	cmd.AddParameters("@abbreviation", excludeTheseStateAbbreviations);
+	var data = _helper.ExecuteDataTable(cmd);
+	Assert.AreEqual(68, data.Rows.Count);
+}
+</pre>

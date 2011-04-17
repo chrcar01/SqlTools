@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Collections;
 
 namespace SqlTools
 {
@@ -12,204 +11,140 @@ namespace SqlTools
 	/// </summary>
 	public static class DbUtility
 	{
-		private static string QuotedValue(Type type, object value)
+		
+		/// <summary>
+		/// Creates a separate parameter for each value in the specified values and adds the parameter to the supplied command.
+		/// </summary>
+		/// <param name="command">The command the parameters are being appended.</param>
+		/// <param name="values">The values for the parameters.</param>
+		/// <param name="parameterName">Name of the parameter.</param>
+		public static void Parameterize(SqlCommand command, ICollection values, string parameterName)
+		{
+			var list = new ArrayList(values);
+			var firstItem = list[0];
+			var itemType = firstItem.GetType();
+			var dbType = ToSqlDbType(itemType.ToString());
+			var maxSizeOfData = 0;
+			if (TypeValueRequiresQuotes(itemType))
+			{
+				foreach(var item in list)
+				{
+					if (item.ToString().Length > maxSizeOfData)
+						maxSizeOfData = item.ToString().Length;
+				}
+			}
+			Parameterize(command, values, parameterName, dbType, maxSizeOfData);
+		}
+
+        /// <summary>
+		/// Creates a separate parameter for each value in the specified values and adds the parameter to the supplied command.
+		/// </summary>
+		/// <param name="command">The command the parameters are being appended.</param>
+		/// <param name="values">The values for the parameters.</param>
+		/// <param name="parameterName">Name of the parameter.</param>
+		/// <param name="maxSizeOfData">The max size of data.</param>
+		public static void Parameterize(SqlCommand command, ICollection values, string parameterName, int maxSizeOfData)
+		{
+			var arrayList = new ArrayList(values);
+			var firstItem = arrayList[0];
+			var dbType = ToSqlDbType(firstItem.GetType().ToString());
+			Parameterize(command, values, parameterName, dbType, maxSizeOfData);
+		}
+
+        /// <summary>
+		/// Creates a separate parameter for each value in the specified values and adds the parameter to the supplied command.
+		/// </summary>
+		/// <param name="command">The command the parameters are being appended.</param>
+		/// <param name="values">The values for the parameters.</param>
+		/// <param name="parameterName">Name of the parameter.</param>
+		/// <param name="dbType">The Sql Server specific data type.</param>
+		/// <param name="maxSizeOfData">The max size of data.</param>
+		public static void Parameterize(SqlCommand command, ICollection values, string parameterName, SqlDbType dbType, int maxSizeOfData)
+		{
+			var parameterNames = new string[values.Count];
+			var i = 0;
+			foreach(var value in values)
+			{				
+				var parameter = new SqlParameter();
+				parameterNames[i] = "@" + parameterName.Replace("@", "") + i;
+				parameter.ParameterName = parameterNames[i];
+				parameter.SqlDbType = dbType;
+				parameter.Size = maxSizeOfData;
+				parameter.Value = value;	
+				command.Parameters.Add(parameter);
+				i++;
+			}
+			command.CommandText = command.CommandText.Replace(parameterName, String.Join(",", parameterNames));
+		}
+
+		/// <summary>
+		/// Creates a separate parameter for each value in the specified values and adds the parameter to the supplied command.
+		/// </summary>
+		/// <param name="this">The command the parameters are being appended.</param>
+		/// <param name="values">The values for the parameters.</param>
+		/// <param name="parameterName">Name of the parameter.</param>
+		public static void AddParameters(this SqlCommand @this, string parameterName, ICollection values)
+		{
+			DbUtility.Parameterize(@this, values, parameterName);
+		}
+
+		/// <summary>
+		/// Creates a separate parameter for each value in the specified values and adds the parameter to the supplied command.
+		/// </summary>
+		/// <param name="this">The command the parameters are being appended.</param>
+		/// <param name="values">The values for the parameters.</param>
+		/// <param name="parameterName">Name of the parameter.</param>
+		/// <param name="maxSizeOfData">The max size of data.</param>
+		public static void AddParameters(this SqlCommand @this, string parameterName, ICollection values, int maxSizeOfData)
+		{
+			DbUtility.Parameterize(@this, values, parameterName, maxSizeOfData);
+		}
+		/// <summary>
+		/// Creates a separate parameter for each value in the specified values and adds the parameter to the supplied command.
+		/// </summary>
+		/// <param name="this">The command the parameters are being appended.</param>
+		/// <param name="values">The values for the parameters.</param>
+		/// <param name="parameterName">Name of the parameter.</param>
+		/// <param name="dbType">The Sql Server specific data type.</param>
+		/// <param name="maxSizeOfData">The max size of data.</param>
+        public static void AddParameters(this SqlCommand @this, string parameterName, ICollection values, SqlDbType dbType, int maxSizeOfData)
+		{
+			DbUtility.Parameterize(@this, values, parameterName, dbType, maxSizeOfData);
+		}
+
+		private static bool TypeValueRequiresQuotes(Type type)
 		{
 			switch (type.ToString())
 			{
 				case "System.String":
 				case "System.Guid":
 				case "System.Char":
-				case "System.DateTime": return String.Format("'{0}'", value);
-				default: return value.ToString();
+				case "System.DateTime": return true;
+				default: return false;
 			}
 		}
-		
-
-		/// <summary>
-		/// Combines the specified values into a comma separated string for the purposes of a SQL IN CLAUSE.  Single ticks are
-		/// added where needed(e.g. around dates, guids, strings).
-		/// </summary>
-		/// <typeparam name="TValue">The type of the value.</typeparam>
-		/// <param name="values">The values being combined.</param>
-		/// <returns></returns>
-		public static string Combine<TValue>(IEnumerable<TValue> values)
+		private static SqlDbType ToSqlDbType(string clrDataTypeName)
 		{
-			return String.Join(",", new List<TValue>(values).ConvertAll<string>(item => { return QuotedValue(item.GetType(), item); }).ToArray());
+			var dict = new Dictionary<string, SqlDbType>(StringComparer.OrdinalIgnoreCase);
+			dict.Add("System.Int64", SqlDbType.BigInt);
+			dict.Add("System.Boolean", SqlDbType.Bit);
+			dict.Add("System.Char", SqlDbType.Char);
+			dict.Add("System.DateTime", SqlDbType.Date);
+			dict.Add("System.Decimal", SqlDbType.Decimal);
+			dict.Add("System.Double", SqlDbType.Float);
+			dict.Add("System.Int32", SqlDbType.Int);
+			dict.Add("System.Int16", SqlDbType.SmallInt);
+			dict.Add("System.Byte", SqlDbType.TinyInt);
+			dict.Add("System.Guid", SqlDbType.UniqueIdentifier);
+			dict.Add("System.String", SqlDbType.VarChar);
+
+			if (!dict.ContainsKey(clrDataTypeName))
+				throw new KeyNotFoundException(clrDataTypeName + " is not mapped.");
+
+			return dict[clrDataTypeName];
 		}
 
-		/// <summary>
-		/// Combines the specified values into a comma separated string for the purposes of a SQL IN CLAUSE.  Single ticks are
-		/// added where needed(e.g. around dates, guids, strings).
-		/// </summary>
-		/// <param name="values">The values.</param>
-		/// <returns></returns>
-		public static string Combine(IEnumerable values)
-		{
-			var result = String.Empty;
-			Type type = null;
-			foreach(var value in values)
-			{
-				if (type == null) type = value.GetType();
-				if (result.Length > 0) result += ",";
-				result += QuotedValue(type, value);
-			}
-			return result;
-		}
-		/// <summary>
-		/// Builds an array of values for the specified columnName from 
-		/// the rows collection.
-		/// </summary>
-		/// <typeparam name="T">The type of data that exists in the column.</typeparam>
-		/// <param name="rows">The DataRowCollection to iterate through.</param>
-		/// <param name="columnName">The name of the column in the datatable, from which 
-		/// the array values are pulled.</param>
-		/// <returns>An array of values of the specified type created from the values
-		/// of the specified columnName for all of the rows.</returns>
-		public static T[] GetValues<T>(DataRowCollection rows, string columnName)
-		{
-			int start = 0;
-			int length = rows != null ? rows.Count : 0;
-			return GetValues<T>(rows, columnName, start, length);
-		}
-
-		/// <summary>
-		/// Slices a range of values.
-		/// </summary>
-		/// <typeparam name="T">The type of values that are being retrieved.</typeparam>
-		/// <param name="rows">The rows to parse.</param>
-		/// <param name="columnName">The name of the column containing the value to parse.</param>
-		/// <param name="start">The position of the first elemtn in rows to retrieve.</param>
-		/// <param name="length">The number of values to retrieve.</param>
-		/// <returns>A strongly typed array of values from a section of rows.</returns>
-		public static T[] GetValues<T>(DataRowCollection rows, string columnName, int start, int length)
-		{
-			DataRow[] rowArray = new DataRow[length];
-			for (int i = 0; i < length; i++)
-			{
-				rowArray[i] = rows[start + i];
-			}
-			return GetValues<T>(rowArray, columnName);
-		}
-
-		/// <summary>
-		/// Builds a strongly typed array of values of a single column within an
-		/// arrya of DataRows.
-		/// </summary>
-		/// <typeparam name="T">The type of value in the column to retrieve.</typeparam>
-		/// <param name="rows">The array of DataRows to parse.</param>
-		/// <param name="columnName">The name of the column from which data values will be retrieved.</param>
-		/// <returns>An array of values representing all of the values 
-		/// from extracting the columnName column values from the rows array.</returns>
-		public static T[] GetValues<T>(DataRow[] rows, string columnName)
-		{
-			if (rows == null)
-				return null;
-			Array arr = Array.CreateInstance(typeof(T), rows.Length);
-			for (int i = 0; i < rows.Length; i++)
-			{
-				object value = null;
-				if (rows[i][columnName] != null)
-					value = (T)rows[i][columnName];
-				arr.SetValue(value, i);
-			}
-			return (T[])arr;
-		}
-
-		/// <summary>
-		/// Builds a strongly typed array of all of the values from the first column
-		/// or all of the rows of the DataTable.
-		/// </summary>
-		/// <typeparam name="T">The type of data for the resultset.</typeparam>
-		/// <param name="table">The DataTable containing all of the values.</param>
-		/// <returns>A strongly typed array of values from the first column of every DataRow from 
-		/// all rows in the DataTable.</returns>
-		public static T[] ToArray<T>(DataTable table)
-		{
-			DataRow[] rows = table.Select();
-			Array arr = Array.CreateInstance(typeof(T), rows.Length);
-			for (int i = 0; i < rows.Length; i++)
-			{
-				object value = null;
-				if (rows[i][0] != null)
-					value = (T)rows[i][0];
-				arr.SetValue(value, i);
-			}
-			return (T[])arr;
-		}
-
-		/// <summary>
-		/// Builds an array of values from the column values for all rows
-		/// in the columnName column in the DataTable.
-		/// </summary>
-		/// <typeparam name="T">The type of data in the specified column.</typeparam>
-		/// <param name="table">The datatable with all of the values to parse.</param>
-		/// <param name="columnName">The name of the column of the DataTable from which all 
-		/// values are obtained.</param>
-		/// <returns>An array of values from the specified column within the DataTable.</returns>
-		public static T[] ToArray<T>(DataTable table, string columnName)
-		{
-			T[] result = null;
-			if (table == null || String.IsNullOrEmpty(columnName))
-				return result;
-
-			result = GetValues<T>(table.Rows, columnName, 0, table.Rows.Count);
-			return result;
-		}
-
-		/// <summary>
-		/// Converts a DataRowCollection to an array of DataRows.
-		/// </summary>
-		/// <param name="rows">The DataRowCollection that will be converted to an
-		/// array of DataRows.</param>
-		/// <returns>An array of DataRows representing each row of the DataRowCollection.</returns>
-		public static DataRow[] ToArray(DataRowCollection rows)
-		{
-			DataRow[] result = null;
-			if (rows == null)
-				return result;
-			
-			result = new DataRow[rows.Count];
-			rows.CopyTo(result, 0);
-			return result;
-		}
-
-        /// <summary>
-        /// Creates parameters for each value in <paramref name="values"/>.  Rewrites the command text by replacing <paramref name="name"/>
-        /// with the list of parameters created in the method.
-        /// </summary>
-        /// <param name="command">The command being parameterized.</param>
-        /// <param name="name">The name of the variable in the commandText of the command that will be replaced with
-        /// the list of variable names.</param>
-        /// <param name="values">The values for each parameter.</param>
-        public static void Parameterize(SqlCommand command, string name, int[] values)
-        {
-            var parameterNames = new string[values.Length];
-            for (int i = 0; i < values.Length; i++)
-            {
-                var paramName = name + i;
-                parameterNames[i] = paramName;
-                command.Parameters.Add(paramName, SqlDbType.Int).Value = values[i];
-            }
-            command.CommandText = command.CommandText.Replace(name, String.Join(",", parameterNames));
-        }
-
-		/// <summary>
-		/// Parameterizes the specified command.
-		/// </summary>
-		/// <param name="command">The command.</param>
-		/// <param name="name">The name.</param>
-		/// <param name="values">The values.</param>
-		/// <param name="length">The length.</param>
-		public static void Parameterize(SqlCommand command, string name, string[] values, int length)
-		{
-			var parameterNames = new string[values.Length];
-			for (int i = 0; i < values.Length; i++)
-			{
-				var paramName = name + i;
-				parameterNames[i] = paramName;
-				command.Parameters.Add(paramName, SqlDbType.VarChar, length).Value = values[i];
-			}
-			command.CommandText = command.CommandText.Replace(name, String.Join(",", parameterNames));
-		}
     }
 }
+
+

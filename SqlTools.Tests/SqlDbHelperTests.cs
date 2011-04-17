@@ -102,7 +102,7 @@ namespace SqlTools.Tests
 				// The Parameterize method rewrites the sql to look like this:
 				//		select * from state where abbreviation in (@abbreviation0,@abbreviation1)
 				// Parameterize takes care of setting the correct parameters per item in the list of abbreviations
-				DbUtility.Parameterize(cmd, "@abbreviation", includeStateAbbreviations, 2);
+				DbUtility.Parameterize(cmd, includeStateAbbreviations, "@abbreviation");
 				Assert.AreEqual(2, cmd.Parameters.Count, "Should have added two parameters");
 				Assert.AreEqual("@abbreviation0", cmd.Parameters[0].ParameterName);
 				Assert.AreEqual("@abbreviation1", cmd.Parameters[1].ParameterName);
@@ -162,14 +162,28 @@ namespace SqlTools.Tests
 			Assert.AreEqual(2, middleInitials.Length);
 		}
 		[Test]
-		public void Verify()
+		public void VerifyParameterizedQuery()
 		{
-			Assert.AreEqual("'silly','sally'", DbUtility.Combine<string>(new string[] { "silly", "sally" }));
-			Assert.AreEqual("'silly','sally'", DbUtility.Combine(new string[] { "silly", "sally" }));
-			Assert.AreEqual("'4/16/2011 12:00:00 AM'", DbUtility.Combine<DateTime>(new DateTime[] { new DateTime(2011, 4, 16) }));
-			Assert.AreEqual("1,2,3,4", DbUtility.Combine<int>(new int[] { 1, 2, 3, 4 }));
-			Assert.AreEqual("1,2,3,4", DbUtility.Combine(new int[] { 1, 2, 3, 4 }));
-			Assert.AreEqual("16,22,59", DbUtility.Combine(new Decimal[] { 16, 22, 59 }));
+			var excludeTheseStateAbbreviations = new string[] { "CO", "CA", "TX" };
+			var sql = "select * from state where abbreviation not in (@abbreviation)";
+			using (var cmd = new SqlCommand(sql))
+			{
+				DbUtility.Parameterize(cmd, excludeTheseStateAbbreviations, "@abbreviation");
+				var data = _helper.ExecuteDataTable(cmd);
+				Assert.AreEqual(68, data.Rows.Count);
+			}
+		}
+		[Test]
+		public void VerifyExtensionMethods()
+		{
+			var excludeTheseStateAbbreviations = new string[] { "CO", "CA", "TX" };
+			var sql = "select * from state where abbreviation not in (@abbreviation)";
+			using (var cmd = new SqlCommand(sql))
+			{
+				cmd.AddParameters("@abbreviation", excludeTheseStateAbbreviations);
+				var data = _helper.ExecuteDataTable(cmd);
+				Assert.AreEqual(68, data.Rows.Count);
+			}
 		}
 	}
 }
