@@ -300,6 +300,17 @@ namespace SqlTools
 		{
 			return (TResult)ChangeType(value, typeof(TResult));
 		}
+
+		/// <summary>
+		/// Returns an Object with the specified Type and whose value is equivalent to the specified object.
+		/// </summary>
+		/// <param name="value">The value.</param>
+		/// <param name="conversionType">Type of the conversion.</param>
+		/// <remarks>
+		/// This method was written by Peter Johnson at:
+		/// http://aspalliance.com/author.aspx?uId=1026.
+		/// </remarks>
+		/// <returns></returns>
 		private object ChangeType(object value, Type conversionType)
 		{
 			// Note: This if block was taken from Convert.ChangeType as is, and is needed here since we're
@@ -369,11 +380,25 @@ namespace SqlTools
 			return tuples;
 		}
 
+		/// <summary>
+		/// Executes the tuple.
+		/// </summary>
+		/// <typeparam name="TFirst">The type of the first.</typeparam>
+		/// <typeparam name="TSecond">The type of the second.</typeparam>
+		/// <param name="commandText">The command text.</param>
+		/// <returns></returns>
 		public IEnumerable<Tuple<TFirst, TSecond>> ExecuteTuple<TFirst, TSecond>(string commandText)
 		{
 			return ExecuteTuple<TFirst, TSecond>(CreateCommand(commandText));
 		}
 
+		/// <summary>
+		/// Executes the tuple.
+		/// </summary>
+		/// <typeparam name="TFirst">The type of the first.</typeparam>
+		/// <typeparam name="TSecond">The type of the second.</typeparam>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
 		public IEnumerable<Tuple<TFirst, TSecond>> ExecuteTuple<TFirst, TSecond>(IDbCommand command)
 		{
 			List<Tuple<TFirst, TSecond>> tuples = new List<Tuple<TFirst, TSecond>>();
@@ -388,11 +413,27 @@ namespace SqlTools
 			return tuples;
 		}
 
+		/// <summary>
+		/// Executes the tuple.
+		/// </summary>
+		/// <typeparam name="TFirst">The type of the first.</typeparam>
+		/// <typeparam name="TSecond">The type of the second.</typeparam>
+		/// <typeparam name="TThird">The type of the third.</typeparam>
+		/// <param name="commandText">The command text.</param>
+		/// <returns></returns>
 		public IEnumerable<Tuple<TFirst, TSecond, TThird>> ExecuteTuple<TFirst, TSecond, TThird>(string commandText)
 		{
 			return ExecuteTuple<TFirst, TSecond, TThird>(CreateCommand(commandText));
 		}
 
+		/// <summary>
+		/// Executes the tuple.
+		/// </summary>
+		/// <typeparam name="TFirst">The type of the first.</typeparam>
+		/// <typeparam name="TSecond">The type of the second.</typeparam>
+		/// <typeparam name="TThird">The type of the third.</typeparam>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
 		public IEnumerable<Tuple<TFirst, TSecond, TThird>> ExecuteTuple<TFirst, TSecond, TThird>(IDbCommand command)
 		{
 			var tuples = new List<Tuple<TFirst, TSecond, TThird>>();

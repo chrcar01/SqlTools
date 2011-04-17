@@ -6,7 +6,7 @@ Even if you're using NHibernate or Entity Framework, or your favorite ORM, somet
 
 ## SqlTools is not an ORM
 
-It executes sql, does some simple type mapping, and that's it.  It's kept pretty simple by design.
+It executes sql, does some simple type mapping, and that's it.  It's kept simple by design.
 
 # Examples
 
@@ -149,4 +149,6 @@ using (var cmd = new SqlCommand(sql, cn))
 <pre>
 var states = _helper.ExecuteMultiple&lt;State&gt;("select * from state");
 </pre>
+
+# DbUtility
 

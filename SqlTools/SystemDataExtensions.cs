@@ -6,6 +6,9 @@ using System.ComponentModel;
 
 namespace SqlTools
 {
+	/// <summary>
+	/// Some helper extensions to built in ADO.NET interface
+	/// </summary>
 	public static class SystemDataExtensions
 	{
 		/// <summary>

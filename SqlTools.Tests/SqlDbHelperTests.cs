@@ -161,5 +161,15 @@ namespace SqlTools.Tests
 			var middleInitials = _helper.ExecuteArray<string>("select middleinitial from customer");
 			Assert.AreEqual(2, middleInitials.Length);
 		}
+		[Test]
+		public void Verify()
+		{
+			Assert.AreEqual("'silly','sally'", DbUtility.Combine<string>(new string[] { "silly", "sally" }));
+			Assert.AreEqual("'silly','sally'", DbUtility.Combine(new string[] { "silly", "sally" }));
+			Assert.AreEqual("'4/16/2011 12:00:00 AM'", DbUtility.Combine<DateTime>(new DateTime[] { new DateTime(2011, 4, 16) }));
+			Assert.AreEqual("1,2,3,4", DbUtility.Combine<int>(new int[] { 1, 2, 3, 4 }));
+			Assert.AreEqual("1,2,3,4", DbUtility.Combine(new int[] { 1, 2, 3, 4 }));
+			Assert.AreEqual("16,22,59", DbUtility.Combine(new Decimal[] { 16, 22, 59 }));
+		}
 	}
 }

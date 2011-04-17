@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Collections;
 
 namespace SqlTools
 {
@@ -11,17 +12,49 @@ namespace SqlTools
 	/// </summary>
 	public static class DbUtility
 	{
+		private static string QuotedValue(Type type, object value)
+		{
+			switch (type.ToString())
+			{
+				case "System.String":
+				case "System.Guid":
+				case "System.Char":
+				case "System.DateTime": return String.Format("'{0}'", value);
+				default: return value.ToString();
+			}
+		}
+		
 
-        /// <summary>
-        /// Combines the specified items into a comma separated string that can be used in a SQL IN CLAUSE.
-        /// </summary>
-        /// <param name="items">The items to combine.</param>
-        /// <returns></returns>
-        public static string Combine(IEnumerable<int> items)
-        {
-            return String.Join(",", new List<int>(items).ConvertAll<string>(item => { return item.ToString(); }).ToArray());
-        }
+		/// <summary>
+		/// Combines the specified values into a comma separated string for the purposes of a SQL IN CLAUSE.  Single ticks are
+		/// added where needed(e.g. around dates, guids, strings).
+		/// </summary>
+		/// <typeparam name="TValue">The type of the value.</typeparam>
+		/// <param name="values">The values being combined.</param>
+		/// <returns></returns>
+		public static string Combine<TValue>(IEnumerable<TValue> values)
+		{
+			return String.Join(",", new List<TValue>(values).ConvertAll<string>(item => { return QuotedValue(item.GetType(), item); }).ToArray());
+		}
 
+		/// <summary>
+		/// Combines the specified values into a comma separated string for the purposes of a SQL IN CLAUSE.  Single ticks are
+		/// added where needed(e.g. around dates, guids, strings).
+		/// </summary>
+		/// <param name="values">The values.</param>
+		/// <returns></returns>
+		public static string Combine(IEnumerable values)
+		{
+			var result = String.Empty;
+			Type type = null;
+			foreach(var value in values)
+			{
+				if (type == null) type = value.GetType();
+				if (result.Length > 0) result += ",";
+				result += QuotedValue(type, value);
+			}
+			return result;
+		}
 		/// <summary>
 		/// Builds an array of values for the specified columnName from 
 		/// the rows collection.
