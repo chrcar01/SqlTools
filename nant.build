@@ -1,0 +1,5 @@
+<project default="build">
+	<target name="build">
+	
+	</target>
+</project>
