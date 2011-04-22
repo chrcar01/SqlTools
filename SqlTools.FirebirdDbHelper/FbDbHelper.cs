@@ -1,46 +1,48 @@
-using System;
-using System.Data.SqlClient;
+﻿using System;
+using System.Data;
+using FirebirdSql.Data.FirebirdClient;
 
-
-namespace SqlTools
+namespace SqlTools.FirebirdDbHelper
 {
-	public class SqlDbHelper : DbHelperBase
+	/// <summary>
+	/// FirebirdSql implementation of IDbHelper.
+	/// </summary>
+	public class FbDbHelper : DbHelperBase
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="SqlDbHelper"/> class.
+		/// Initializes a new instance of the <see cref="FbDbHelper"/> class.
 		/// </summary>
 		/// <param name="connectionString">The connection string.</param>
-		public SqlDbHelper(string connectionString)
+		public FbDbHelper(string connectionString)
 			: base(connectionString, DbHelperBase.INITIAL_DEFAULT_COMMAND_TIMEOUT_IN_SECONDS)
-		{
+		{			
 		}
+
 		/// <summary>
-		/// Initializes a new instance of the <see cref="SqlDbHelper"/> class.
+		/// Initializes a new instance of the <see cref="FbDbHelper"/> class.
 		/// </summary>
 		/// <param name="connectionString">The connection string.</param>
 		/// <param name="defaultCommandTimeoutInSeconds">The default command timeout in seconds. The default for this value is whatever SqlCommand.CommandTimeout returns which is usually 30.</param>
-		public SqlDbHelper(string connectionString, int defaultCommandTimeoutInSeconds)
+		public FbDbHelper(string connectionString, int defaultCommandTimeoutInSeconds)
 			: base(connectionString, defaultCommandTimeoutInSeconds)
-		{	
+		{			
 		}
-
 		/// <summary>
 		/// Creates a provider specific implementation of IDbCommand.
 		/// </summary>
 		/// <returns></returns>
-		protected override System.Data.IDbCommand CreateCommand()
+		protected override IDbCommand CreateCommand()
 		{
-			return new SqlCommand();
+			return new FbCommand();
 		}
-
 
 		/// <summary>
 		/// Creates a provider specific implementation of IDbConnection.
 		/// </summary>
 		/// <returns></returns>
-		protected override System.Data.IDbConnection CreateConnection()
+		protected override IDbConnection CreateConnection()
 		{
-			return new SqlConnection();
+			return new FbConnection();
 		}
 
 		/// <summary>
@@ -48,13 +50,13 @@ namespace SqlTools
 		/// </summary>
 		/// <param name="command">The command used by the IDbDataAdapter.</param>
 		/// <returns></returns>
-		protected override System.Data.IDbDataAdapter CreateDataAdapter(System.Data.IDbCommand command)
+		protected override IDbDataAdapter CreateDataAdapter(IDbCommand command)
 		{
-			var cmd = command as SqlCommand;
+			var cmd = command as FbCommand;
 			if (cmd == null)
-				throw new InvalidCastException("The command cannot be cast to SqlCommand. The actual type is: " + command.GetType().ToString());
+				throw new InvalidCastException("The command cannot be cast to FbCommand. The actual type is: " + command.GetType().ToString());
 
-			return new SqlDataAdapter(cmd);
+			return new FbDataAdapter(cmd);
 		}
 	}
 }

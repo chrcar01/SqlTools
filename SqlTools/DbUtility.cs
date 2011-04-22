@@ -18,7 +18,7 @@ namespace SqlTools
 		/// <param name="command">The command the parameters are being appended.</param>
 		/// <param name="values">The values for the parameters.</param>
 		/// <param name="parameterName">Name of the parameter.</param>
-		public static void Parameterize(SqlCommand command, ICollection values, string parameterName)
+		public static void Parameterize(IDbCommand command, ICollection values, string parameterName)
 		{
 			var list = new ArrayList(values);
 			var firstItem = list[0];
@@ -43,7 +43,7 @@ namespace SqlTools
 		/// <param name="values">The values for the parameters.</param>
 		/// <param name="parameterName">Name of the parameter.</param>
 		/// <param name="maxSizeOfData">The max size of data.</param>
-		public static void Parameterize(SqlCommand command, ICollection values, string parameterName, int maxSizeOfData)
+		public static void Parameterize(IDbCommand command, ICollection values, string parameterName, int maxSizeOfData)
 		{
 			var arrayList = new ArrayList(values);
 			var firstItem = arrayList[0];
@@ -59,7 +59,7 @@ namespace SqlTools
 		/// <param name="parameterName">Name of the parameter.</param>
 		/// <param name="dbType">The Sql Server specific data type.</param>
 		/// <param name="maxSizeOfData">The max size of data.</param>
-		public static void Parameterize(SqlCommand command, ICollection values, string parameterName, SqlDbType dbType, int maxSizeOfData)
+		public static void Parameterize(IDbCommand command, ICollection values, string parameterName, SqlDbType dbType, int maxSizeOfData)
 		{
 			var parameterNames = new string[values.Count];
 			var i = 0;
@@ -83,7 +83,7 @@ namespace SqlTools
 		/// <param name="this">The command the parameters are being appended.</param>
 		/// <param name="values">The values for the parameters.</param>
 		/// <param name="parameterName">Name of the parameter.</param>
-		public static void AddParameters(this SqlCommand @this, string parameterName, ICollection values)
+		public static void AddParameters(this IDbCommand @this, string parameterName, ICollection values)
 		{
 			DbUtility.Parameterize(@this, values, parameterName);
 		}
@@ -95,7 +95,7 @@ namespace SqlTools
 		/// <param name="values">The values for the parameters.</param>
 		/// <param name="parameterName">Name of the parameter.</param>
 		/// <param name="maxSizeOfData">The max size of data.</param>
-		public static void AddParameters(this SqlCommand @this, string parameterName, ICollection values, int maxSizeOfData)
+		public static void AddParameters(this IDbCommand @this, string parameterName, ICollection values, int maxSizeOfData)
 		{
 			DbUtility.Parameterize(@this, values, parameterName, maxSizeOfData);
 		}
@@ -107,7 +107,7 @@ namespace SqlTools
 		/// <param name="parameterName">Name of the parameter.</param>
 		/// <param name="dbType">The Sql Server specific data type.</param>
 		/// <param name="maxSizeOfData">The max size of data.</param>
-        public static void AddParameters(this SqlCommand @this, string parameterName, ICollection values, SqlDbType dbType, int maxSizeOfData)
+		public static void AddParameters(this IDbCommand @this, string parameterName, ICollection values, SqlDbType dbType, int maxSizeOfData)
 		{
 			DbUtility.Parameterize(@this, values, parameterName, dbType, maxSizeOfData);
 		}
@@ -123,6 +123,7 @@ namespace SqlTools
 				default: return false;
 			}
 		}
+		
 		private static SqlDbType ToSqlDbType(string clrDataTypeName)
 		{
 			var dict = new Dictionary<string, SqlDbType>(StringComparer.OrdinalIgnoreCase);
