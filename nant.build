@@ -1,5 +1,52 @@
 <project default="build">
+	<property name="bin.dir" value="./bin" />
+	<property name="version" value="1.0.0.0" overwrite="true" />
 	<target name="build">
-	
+		<delete dir="${bin.dir}" if="${directory::exists(bin.dir)}" />
+		<mkdir dir="${bin.dir}" />
+		<call target="build.sqltools.core" />		
+		<call target="build.sqltools.firebirddbhelper" />
+		<copy todir="${bin.dir}">
+			<fileset basedir="./lib">
+				<include name="./lib/FirebirdSql.Data.FirebirdClient.*" />
+			</fileset>
+		</copy>
+		<zip ziplevel="9" zipfile="${bin.dir}/SqlTools-${version}-binaries.zip">
+			<fileset basedir="${bin.dir}">
+				<include name="*.*" />
+			</fileset>
+		</zip>
+	</target>
+	<target name="build.sqltools.core">		
+		<csc
+			output="${bin.dir}/SqlTools.dll"
+			doc="${bin.dir}/SqlTools.xml"
+			debug="PdbOnly"
+			target="library"
+			warnaserror="true"
+			warninglevel="4">
+			<sources>
+				<include name="CommonAssemblyInfo.cs" />
+				<include name="./SqlTools/**/*.cs" />
+			</sources>
+		</csc>
+	</target>
+	<target name="build.sqltools.firebirddbhelper">
+		<csc
+			output="${bin.dir}/SqlTools.FirebirdDbHelper.dll"
+			doc="${bin.dir}/SqlTools.FirebirdDbHelper.xml"
+			debug="PdbOnly"
+			target="library"
+			warnaserror="true"
+			warninglevel="4">
+			<references>
+				<include name="${bin.dir}/SqlTools.dll" />
+				<include name="./lib/FirebirdSql.Data.FirebirdClient.dll" />
+			</references>
+			<sources>
+				<include name="./CommonAssemblyInfo.cs" />
+				<include name="SqlTools.FirebirdDbHelper/**/*.cs" />
+			</sources>
+		</csc>
 	</target>
 </project>

@@ -4,6 +4,9 @@ using System.Data.SqlClient;
 
 namespace SqlTools
 {
+	/// <summary>
+	/// Sql Server specific implementation of IDbHelper.
+	/// </summary>
 	public class SqlDbHelper : DbHelperBase
 	{
 		/// <summary>
