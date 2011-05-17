@@ -8,6 +8,32 @@ using Microsoft.CSharp;
 using SqlTools.FirebirdDbHelper;
 namespace SqlTools.Tests
 {
+	public class TestHelper : DbHelperBase
+	{
+		public TestHelper(string connectionString)
+			: base(connectionString, 30)
+		{
+			
+		}
+		public void Prep(SqlCommand cmd)
+		{
+			PrepCommand(cmd);
+		}
+		protected override System.Data.IDbCommand CreateCommand()
+		{
+			return new SqlCommand();
+		}
+
+		protected override System.Data.IDbConnection CreateConnection()
+		{
+			return new SqlConnection();
+		}
+
+		protected override System.Data.IDbDataAdapter CreateDataAdapter(System.Data.IDbCommand command)
+		{
+			return new SqlDataAdapter(command as SqlCommand);
+		}
+	}
 	[TestFixture]
 	public class SqlDbHelperTests
 	{
@@ -19,6 +45,21 @@ namespace SqlTools.Tests
 			var connectionString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
 			var defaultCommandTimeoutInSeconds = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultCommandTimeoutInSeconds"]);
 			_helper = new SqlDbHelper(connectionString, defaultCommandTimeoutInSeconds);
+		}
+		[Test]
+		public void VerifyUserDefinedCommandTimeoutOverridesDefaultCommandTimeout()
+		{
+			var helper = new TestHelper("");
+			helper.DefaultCommandTimeoutInSeconds = 600;
+			using (var cmd = new SqlCommand(""))
+			{
+				helper.Prep(cmd);
+				Assert.AreEqual(600, cmd.CommandTimeout);
+				cmd.CommandTimeout = 2880;
+				helper.Prep(cmd);
+				Assert.AreEqual(2880, cmd.CommandTimeout);
+			}
+			
 		}
 		[Test]
 		public void VerifyChangeConnectionChangesInternalConnectionString()

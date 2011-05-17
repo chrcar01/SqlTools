@@ -134,7 +134,12 @@ namespace SqlTools
 			return cmd;
 		}
 
-		private IDbCommand PrepCommand(IDbCommand command)
+		/// <summary>
+		/// Preps the command.  Currently this just sets the appropriate command timeout.
+		/// </summary>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
+		protected IDbCommand PrepCommand(IDbCommand command)
 		{
 			var cn = command.Connection;
 			return PrepCommand(command, cn);
