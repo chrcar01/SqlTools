@@ -10,7 +10,7 @@ namespace SqlTools
 	public interface IDbHelperTuple
 	{
         /// <summary>
-        /// Executes the sql and returns a <see cref="System.Tuple"/> with one strongly typed property mapped to the first column in the resultset.
+        /// Executes the sql and returns a Tuple with one strongly typed property mapped to the first column in the resultset.
         /// </summary>
         /// <typeparam name="TFirst">The type of the first.</typeparam>
         /// <param name="commandText">The command text.</param>

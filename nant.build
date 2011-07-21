@@ -1,6 +1,7 @@
 <project default="build">
 	<property name="bin.dir" value="./bin" />
 	<property name="version" value="1.0.0.0" overwrite="true" />
+	<property name="define" value="" overwrite="true" />
 	<target name="build">
 		<delete dir="${bin.dir}" if="${directory::exists(bin.dir)}" />
 		<mkdir dir="${bin.dir}" />
@@ -17,11 +18,13 @@
 			</fileset>
 		</zip>
 	</target>
+	
 	<target name="build.sqltools.core">		
 		<csc
 			output="${bin.dir}/SqlTools.dll"
 			doc="${bin.dir}/SqlTools.xml"
 			debug="PdbOnly"
+			define="${define}"
 			target="library"
 			warnaserror="true"
 			warninglevel="4">
@@ -36,6 +39,7 @@
 			output="${bin.dir}/SqlTools.FirebirdDbHelper.dll"
 			doc="${bin.dir}/SqlTools.FirebirdDbHelper.xml"
 			debug="PdbOnly"
+			define="${define}"
 			target="library"
 			warnaserror="true"
 			warninglevel="4">
