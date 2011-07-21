@@ -610,8 +610,6 @@ namespace SqlTools
 		{
 			if (ConnectionChanged == null) return;
 			ConnectionChanged(this, new ConnectionChangedEventArgs(oldConnectionString, newConnectionString));
-		}
-
-
+		}		
 	}
 }
