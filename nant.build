@@ -2,23 +2,23 @@
 	<property name="bin.dir" value="./bin" />
 	<property name="version" value="1.0.0.0" overwrite="true" />
 	<property name="define" value="" overwrite="true" />
-	<target name="build">
+	<property name="runtime" value="40" overwrite="true" />
+	<target name="clean">
 		<delete dir="${bin.dir}" if="${directory::exists(bin.dir)}" />
 		<mkdir dir="${bin.dir}" />
+	</target>
+	<target name="build-all">
+		<call target="clean" />
 		<call target="build.sqltools.core" />		
-		<call target="build.sqltools.firebirddbhelper" />
-		<copy todir="${bin.dir}">
-			<fileset basedir="./lib">
-				<include name="./lib/FirebirdSql.Data.FirebirdClient.*" />
-			</fileset>
-		</copy>
-		<zip ziplevel="9" zipfile="${bin.dir}/SqlTools-${version}-binaries.zip">
+		<call target="build.sqltools.firebirddbhelper" />				
+	</target>
+	<target name="zip-it-up">
+		<zip ziplevel="9" zipfile="${bin.dir}/SqlTools-${version}-NET${runtime}-binaries.zip">
 			<fileset basedir="${bin.dir}">
 				<include name="*.*" />
 			</fileset>
 		</zip>
 	</target>
-	
 	<target name="build.sqltools.core">		
 		<csc
 			output="${bin.dir}/SqlTools.dll"
@@ -52,5 +52,10 @@
 				<include name="SqlTools.FirebirdDbHelper/**/*.cs" />
 			</sources>
 		</csc>
+		<copy todir="${bin.dir}">
+			<fileset basedir="./lib">
+				<include name="./lib/FirebirdSql.Data.FirebirdClient.*" />
+			</fileset>
+		</copy>
 	</target>
 </project>
