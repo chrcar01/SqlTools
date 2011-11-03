@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace SqlTools.Tests
 {
@@ -19,6 +20,25 @@ namespace SqlTools.Tests
 			var connectionString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
 			var defaultCommandTimeoutInSeconds = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultCommandTimeoutInSeconds"]);
 			_helper = new SqlDbHelper(connectionString, defaultCommandTimeoutInSeconds);
+		}
+		[Test]
+		public void VerifySingleDynamicObject()
+		{
+			var sql = "select firstname, lastname from customer where id = 1";
+			dynamic customer = _helper.ExecuteDynamic(sql);
+			customer.IsWorthy = true;
+			Assert.AreEqual("Chris", customer.fIrStNAME);
+			Assert.IsTrue(customer.IsWorthy);
+		}
+		[Test]
+		public void VerifyMultipleDynamicObjects()
+		{
+			var sql = "select firstname as fn, middleinitial as mi, lastname as ln from customer";
+			IEnumerable<dynamic> customers = _helper.ExecuteDynamics(sql);
+			dynamic first = customers.ElementAt(0);
+			Assert.AreEqual("Chris", first.fn);
+			dynamic second = customers.ElementAt(1);
+			Assert.IsNull(second.mi);
 		}
 		[Test]
 		public void VerifyUserDefinedCommandTimeoutOverridesDefaultCommandTimeout()

@@ -610,6 +610,35 @@ namespace SqlTools
 		{
 			if (ConnectionChanged == null) return;
 			ConnectionChanged(this, new ConnectionChangedEventArgs(oldConnectionString, newConnectionString));
-		}		
+		}
+		
+#if (!NET35)
+		public dynamic ExecuteDynamic(string sql)
+		{
+			return ExecuteDynamic(CreateCommand(sql));
+		}
+		public dynamic ExecuteDynamic(IDbCommand command)
+		{
+			var data = ExecuteDataTable(command);
+			return new DynamicResult(data.Columns, data.Rows[0]);
+		}
+		public IEnumerable<dynamic> ExecuteDynamics(string sql)
+		{
+			return ExecuteDynamics(CreateCommand(sql));
+		}
+		public IEnumerable<dynamic> ExecuteDynamics(IDbCommand command)
+		{
+			var result = new List<dynamic>();
+			var data = ExecuteDataTable(command);
+			if (data == null || data.Rows.Count == 0)
+				return result;
+
+			foreach (DataRow row in data.Rows)
+			{
+				result.Add(new DynamicResult(data.Columns, row));
+			}
+			return result;
+		}
+#endif
 	}
 }

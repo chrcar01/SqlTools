@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Collections.Generic;
 
 namespace SqlTools
 {
@@ -117,6 +118,12 @@ namespace SqlTools
 		/// </summary>
 		/// <value>The default command timeout in seconds.</value>
 		int DefaultCommandTimeoutInSeconds { get; set; }
+#if (!NET35)
+		dynamic ExecuteDynamic(string sql);
+		dynamic ExecuteDynamic(IDbCommand command);
+		IEnumerable<dynamic> ExecuteDynamics(string sql);
+		IEnumerable<dynamic> ExecuteDynamics(IDbCommand command);
+#endif
 
 	}
 }
