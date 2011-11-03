@@ -51,6 +51,7 @@ namespace SqlTools
 			Parameterize(command, values, parameterName, dbType, maxSizeOfData);
 		}
 
+		
         /// <summary>
 		/// Creates a separate parameter for each value in the specified values and adds the parameter to the supplied command.
 		/// </summary>
@@ -66,7 +67,7 @@ namespace SqlTools
 			foreach(var value in values)
 			{				
 				var parameter = new SqlParameter();
-				parameterNames[i] = "@" + parameterName.Replace("@", "") + i;
+				parameterNames[i] = String.Format("@{0}{1}", parameterName.Replace("@", ""), i);
 				parameter.ParameterName = parameterNames[i];
 				parameter.SqlDbType = dbType;
 				parameter.Size = maxSizeOfData;
@@ -111,7 +112,17 @@ namespace SqlTools
 		{
 			DbUtility.Parameterize(@this, values, parameterName, dbType, maxSizeOfData);
 		}
-
+		/// <summary>
+		/// Creates a separate parameter for each value in the specified values and adds the parameter to the supplied command.
+		/// </summary>
+		/// <param name="this">The command the parameters are being appended.</param>
+		/// <param name="values">The values for the parameters.</param>
+		/// <param name="parameterName">Name of the parameter.</param>
+		/// <param name="dbType">The Sql Server specific data type.</param>
+		public static void AddParameters(this IDbCommand @this, string parameterName, ICollection values, SqlDbType dbType)
+		{
+			DbUtility.Parameterize(@this, values, parameterName, dbType, 0);
+		}
 		private static bool TypeValueRequiresQuotes(Type type)
 		{
 			switch (type.ToString())
