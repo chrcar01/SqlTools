@@ -613,19 +613,41 @@ namespace SqlTools
 		}
 		
 #if (!NET35)
+		/// <summary>
+		/// Executes sql, and returns a strongly typed instance of a class contructed at runtime containing the values of the
+		/// first row in the resultset.
+		/// </summary>
+		/// <param name="sql">The SQL.</param>
+		/// <returns></returns>
 		public dynamic ExecuteDynamic(string sql)
 		{
 			return ExecuteDynamic(CreateCommand(sql));
 		}
+		/// <summary>
+		/// Executes command, and returns a strongly typed instance of a class contructed at runtime containing the values of the
+		/// first row in the resultset.
+		/// </summary>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
 		public dynamic ExecuteDynamic(IDbCommand command)
 		{
 			var data = ExecuteDataTable(command);
 			return new DynamicResult(data.Columns, data.Rows[0]);
 		}
+		/// <summary>
+		/// Executes the sql and returns a list of dynamically created objects representing each row in the resultset.
+		/// </summary>
+		/// <param name="sql">The SQL.</param>
+		/// <returns></returns>
 		public IEnumerable<dynamic> ExecuteDynamics(string sql)
 		{
 			return ExecuteDynamics(CreateCommand(sql));
 		}
+		/// <summary>
+		/// Executes the sql and returns a list of dynamically created objects representing each row in the resultset.
+		/// </summary>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
 		public IEnumerable<dynamic> ExecuteDynamics(IDbCommand command)
 		{
 			var result = new List<dynamic>();

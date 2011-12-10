@@ -33,12 +33,12 @@ namespace SqlTools.Tests
 		[Test]
 		public void VerifyMultipleDynamicObjects()
 		{
-			var sql = "select firstname as fn, middleinitial as mi, lastname as ln from customer";
+			var sql = "select firstname, lastname from customer";
 			IEnumerable<dynamic> customers = _helper.ExecuteDynamics(sql);
-			dynamic first = customers.ElementAt(0);
-			Assert.AreEqual("Chris", first.fn);
-			dynamic second = customers.ElementAt(1);
-			Assert.IsNull(second.mi);
+			foreach (dynamic customer in customers)
+			{
+				Console.WriteLine("{0}, {1}", customer.LastName, customer.FirstName);
+			}
 		}
 		[Test]
 		public void VerifyUserDefinedCommandTimeoutOverridesDefaultCommandTimeout()

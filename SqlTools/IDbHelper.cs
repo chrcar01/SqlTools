@@ -119,9 +119,31 @@ namespace SqlTools
 		/// <value>The default command timeout in seconds.</value>
 		int DefaultCommandTimeoutInSeconds { get; set; }
 #if (!NET35)
+		/// <summary>
+		/// Executes sql, and returns a strongly typed instance of a class contructed at runtime containing the values of the 
+		/// first row in the resultset.
+		/// </summary>
+		/// <param name="sql">The SQL.</param>
+		/// <returns></returns>
 		dynamic ExecuteDynamic(string sql);
+		/// <summary>
+		/// Executes command, and returns a strongly typed instance of a class contructed at runtime containing the values of the 
+		/// first row in the resultset.
+		/// </summary>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
 		dynamic ExecuteDynamic(IDbCommand command);
+		/// <summary>
+		/// Executes the sql and returns a list of dynamically created objects representing each row in the resultset.
+		/// </summary>
+		/// <param name="sql">The SQL.</param>
+		/// <returns></returns>
 		IEnumerable<dynamic> ExecuteDynamics(string sql);
+		/// <summary>
+		/// Executes the sql and returns a list of dynamically created objects representing each row in the resultset.
+		/// </summary>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
 		IEnumerable<dynamic> ExecuteDynamics(IDbCommand command);
 #endif
 
