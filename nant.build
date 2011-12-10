@@ -1,8 +1,8 @@
 <project default="build">
 	<property name="bin.dir" value="./bin" />
-	<property name="version" value="1.0.0.0" overwrite="true" />
-	<property name="define" value="" overwrite="true" />
-	<property name="runtime" value="40" overwrite="true" />
+	<property name="version" value="1.0.0.0" overwrite="false" />
+	<property name="define" value="" overwrite="false" />
+	<property name="runtime" value="40" overwrite="false" />
 	<target name="clean">
 		<delete dir="${bin.dir}" if="${directory::exists(bin.dir)}" />
 		<mkdir dir="${bin.dir}" />
@@ -31,6 +31,7 @@
 			<sources>
 				<include name="CommonAssemblyInfo.cs" />
 				<include name="./SqlTools/**/*.cs" />
+				<exclude name="./SqlTools/DynamicResult.cs" if="${runtime != '40'}" />
 			</sources>
 		</csc>
 	</target>
