@@ -44,6 +44,9 @@ namespace SqlTools
 		public override bool TryGetMember(GetMemberBinder binder, out object result)
 		{
 			var key = binder.Name;
+			if (!_values.ContainsKey(key))
+				throw new DynamicResultException(String.Format("The property '{0}' was not found.", key));
+
 			result = _values[key];
 			return true;
 		}

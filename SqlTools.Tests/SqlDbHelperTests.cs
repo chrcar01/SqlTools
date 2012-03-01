@@ -21,6 +21,15 @@ namespace SqlTools.Tests
 			var defaultCommandTimeoutInSeconds = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultCommandTimeoutInSeconds"]);
 			_helper = new SqlDbHelper(connectionString, defaultCommandTimeoutInSeconds);
 		}
+
+		[Test]
+		[ExpectedException(typeof(DynamicResultException), UserMessage="The property 'PropertyDoesNotExist' was not found.")]
+		public void VerifyDynamicResultExceptionThrownWhenPropertyNotFound()
+		{
+			var sql = "select firstname from customer where id = 1";
+			dynamic customer = _helper.ExecuteDynamic(sql);
+			Assert.AreEqual("this doesn't matter", customer.PropertyDoesNotExist);
+		}
 		[Test]
 		public void VerifySingleDynamicObject()
 		{

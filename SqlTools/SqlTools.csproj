@@ -67,6 +67,7 @@
     </Compile>
     <Compile Include="DbHelperBase.cs" />
     <Compile Include="DynamicResult.cs" />
+    <Compile Include="DynamicResultException.cs" />
     <Compile Include="ExecuteArrayOptions.cs" />
     <Compile Include="ConnectionChangedEventArgs.cs" />
     <Compile Include="DbUtility.cs" />
