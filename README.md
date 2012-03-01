@@ -200,3 +200,18 @@ using (var cmd = new SqlCommand(sql))
 	Assert.AreEqual(68, data.Rows.Count);
 }
 </pre>
+
+## Dynamic Strongly Typed Queries
+
+Let's say you want to execute a query and you want a strongly typed object.  You could create a separate model class to hold the results as shown above.  OR you could be super cool and use the new dynamic execute methods to retrieve a strongly typed result without creating a class at all.  
+
+In the following example, I just want to get two attributes of the single customer who has an ID of 1.
+
+<pre>
+var sql = "select firstname, lastname from customer where id = 1";
+dynamic customer = _helper.ExecuteDynamic(sql);
+</pre>
+
+In the above code, **customer** now has two **case-INsensitive** properties that you can use however you want, and they are strongly typed.
+
+
