@@ -123,8 +123,15 @@ namespace SqlTools.Tests
 		[Test]
 		public void VerifyExecuteScalar()
 		{
-			var numberOfStates = _helper.ExecuteScalar<int>("select count(*) from state");
-			Assert.AreEqual(71, numberOfStates);
+			var localHelper = new SqlDbHelper(_helper.ConnectionString);
+			localHelper.ConnectionCreated += (x, y) => Console.WriteLine("Connection Created");
+			//var numberOfStates = localHelper.ExecuteScalar<int>("select count(*) from state");
+			//Assert.AreEqual(71, numberOfStates);
+			using (var cmd = new SqlCommand("select count(*) from state"))
+			{
+				localHelper.ExecuteScalar<int>(cmd);
+			}
+			
 		}
 		[Test]
 		public void VerifyExecuteNonQuery()

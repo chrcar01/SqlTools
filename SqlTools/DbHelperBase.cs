@@ -131,7 +131,6 @@ namespace SqlTools
 		{
 			var cmd = CreateCommand();
 			cmd.CommandText = commandText;
-			PrepCommand(cmd, GetConnection());
 			return cmd;
 		}
 
