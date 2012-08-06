@@ -1,5 +1,6 @@
 using System;
 using System.Data.SqlClient;
+using System.Data;
 
 
 namespace SqlTools
@@ -31,7 +32,7 @@ namespace SqlTools
 		/// Creates a provider specific implementation of IDbCommand.
 		/// </summary>
 		/// <returns></returns>
-		protected override System.Data.IDbCommand CreateCommand()
+		protected override IDbCommand CreateCommand()
 		{
 			return new SqlCommand();
 		}
@@ -41,9 +42,17 @@ namespace SqlTools
 		/// Creates a provider specific implementation of IDbConnection.
 		/// </summary>
 		/// <returns></returns>
-		protected override System.Data.IDbConnection CreateConnection()
+		protected override IDbConnection CreateConnection()
 		{
-			return new SqlConnection();
+			var connection = new SqlConnection();
+			connection.StateChange += connection_StateChange;
+			return connection;
+		}
+
+		private void connection_StateChange(object sender, StateChangeEventArgs e)
+		{
+			var state = e.CurrentState == ConnectionState.Open ? ConnectionStates.Open : ConnectionStates.Closed;
+			RaiseConnectionStateChanged(state);
 		}
 
 		/// <summary>
@@ -51,7 +60,7 @@ namespace SqlTools
 		/// </summary>
 		/// <param name="command">The command used by the IDbDataAdapter.</param>
 		/// <returns></returns>
-		protected override System.Data.IDbDataAdapter CreateDataAdapter(System.Data.IDbCommand command)
+		protected override IDbDataAdapter CreateDataAdapter(IDbCommand command)
 		{
 			var cmd = command as SqlCommand;
 			if (cmd == null)

@@ -65,6 +65,7 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ConnectionStates.cs" />
     <Compile Include="DbHelperBase.cs" />
     <Compile Include="DynamicResult.cs" />
     <Compile Include="DynamicResultException.cs" />

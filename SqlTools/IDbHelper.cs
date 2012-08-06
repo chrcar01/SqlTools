@@ -93,16 +93,32 @@ namespace SqlTools
 		DataTable ExecuteDataTable(IDbCommand command);
 		/// <summary>
 		/// Executes a query and returns a data reader containing the results.
+		/// Implementors should use CommandBehavior.CloseConnection as the default behavior.
 		/// </summary>
 		/// <param name="commandText">The query to execute.</param>
 		/// <returns>A data reader containing the results of executing the query.</returns>
 		IDataReader ExecuteReader(string commandText);
+        /// <summary>
+		/// Executes a query and returns a data reader containing the results.
+		/// </summary>
+		/// <param name="commandText">The query to execute.</param>
+		/// <param name="behavior">Effects of executing the command on the connection.</param>
+		/// <returns>A data reader containing the results of executing the query.</returns>
+		IDataReader ExecuteReader(string commandText, CommandBehavior behavior);
 		/// <summary>
 		/// Executes a command and returns a data reader containing the results.
+		/// Implementors should use CommandBehavior.CloseConnection as the default behavior.
 		/// </summary>
 		/// <param name="command">The command to execute.</param>
 		/// <returns>A data reader containing the results of executing the command.</returns>
 		IDataReader ExecuteReader(IDbCommand command);
+        /// <summary>
+		/// Executes a command and returns a data reader containing the results.
+		/// </summary>
+		/// <param name="command">The command to execute.</param>
+		/// <param name="behavior">Effects of executing the command on the connection.</param>
+		/// <returns>A data reader containing the results of executing the command.</returns>
+		IDataReader ExecuteReader(IDbCommand command, CommandBehavior behavior);
 		/// <summary>
 		/// Changes the connection.
 		/// </summary>
@@ -112,6 +128,14 @@ namespace SqlTools
 		/// Occurs when [connection changed].
 		/// </summary>
 		event EventHandler<ConnectionChangedEventArgs> ConnectionChanged;
+		/// <summary>
+		/// Occurs when [connection state changed].
+		/// </summary>
+		event EventHandler<ConnectionStateChangedEventArgs> ConnectionStateChanged;
+		/// <summary>
+		/// Occurs when [connection created].
+		/// </summary>
+		event EventHandler ConnectionCreated;
 		/// <summary>
 		/// Gets or sets the default command timeout in seconds. 
 		/// The default value for this property is the same as the default for SqlCommand's CommandTimeout property.

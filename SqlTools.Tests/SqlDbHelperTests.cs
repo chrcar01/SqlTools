@@ -6,14 +6,41 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 
 namespace SqlTools.Tests
 {
 	[TestFixture]
 	public class SqlDbHelperTests
 	{
-		private IDbHelper _helper;
 		
+		[Test]
+		public void VerifyConnectionStateChanged()
+		{
+			var connectionString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
+			var helper = new SqlDbHelper(connectionString);
+			helper.ConnectionStateChanged += (x, y) => Console.WriteLine("State changed: {0}", y.State);
+			helper.ConnectionCreated += (x, y) => Console.WriteLine("Connection created!");
+			using (var cmd = new SqlCommand("select Code, Display from state"))
+			using (var reader = helper.ExecuteReader(cmd))
+			{
+				while (reader.Read())
+				{
+					
+				}
+			}
+			
+		}
+		private IDbHelper _helper;
+
+		[Test]
+		public void VerifyDataColumnCollectionContains()
+		{
+			var table = new DataTable();
+			table.Columns.Add("Unpaid");
+			Assert.IsTrue(table.Columns.Contains("unPAID"));
+
+		}
 		[TestFixtureSetUp]
 		public void InitializeAllTests()
 		{

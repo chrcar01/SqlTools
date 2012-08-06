@@ -119,10 +119,11 @@ namespace SqlTools
 		public IDbConnection GetConnection(InitialConnectionStates initialState)
 		{
 			IDbConnection result = CreateConnection();
+			RaiseConnectionCreated();
 			result.ConnectionString = ConnectionString;
 			if (initialState == InitialConnectionStates.Open)
 				result.Open();
-
+						
 			return result;
 		}
 
@@ -313,24 +314,56 @@ namespace SqlTools
 		}
 
 		/// <summary>
-		/// Executes a query and returns a SqlDataReader containing the resultset.
+		/// Executes a query and returns a data reader containing the results.
+		/// Implementors should use CommandBehavior.CloseConnection as the default behavior.
 		/// </summary>
 		/// <param name="commandText">The query to execute.</param>
-		/// <returns>A SqlDataReader containing the resultset.</returns>
+		/// <returns>
+		/// A data reader containing the results of executing the query.
+		/// </returns>
 		public IDataReader ExecuteReader(string commandText)
 		{
-			return this.ExecuteReader(CreateCommand(commandText));
+			return this.ExecuteReader(CreateCommand(commandText), CommandBehavior.CloseConnection);
 		}
 
 		/// <summary>
-		/// Executes a command and returns a SqlDataReader containing the resultset.
+		/// Executes a query and returns a SqlDataReader containing the resultset.
+		/// </summary>
+		/// <param name="commandText">The query to execute.</param>
+		/// <param name="behavior">Effects of executing the command on the connection.</param>
+		/// <returns>
+		/// A SqlDataReader containing the resultset.
+		/// </returns>
+		public IDataReader ExecuteReader(string commandText, CommandBehavior behavior)
+		{
+			return this.ExecuteReader(CreateCommand(commandText), behavior);
+		}
+
+		/// <summary>
+		/// Executes a command and returns a data reader containing the results.
+		/// Implementors should use CommandBehavior.CloseConnection as the default behavior.
 		/// </summary>
 		/// <param name="command">The command to execute.</param>
-		/// <returns>A SqlDataReader containing the resultset.</returns>
+		/// <returns>
+		/// A data reader containing the results of executing the command.
+		/// </returns>
 		public IDataReader ExecuteReader(IDbCommand command)
 		{
+			return ExecuteReader(command, CommandBehavior.CloseConnection);
+		}
+
+		/// <summary>
+		/// Executes a command and returns a data reader containing the results.
+		/// </summary>
+		/// <param name="command">The command to execute.</param>
+		/// <param name="behavior">Effects of executing the command on the connection.</param>
+		/// <returns>
+		/// A data reader containing the results of executing the command.
+		/// </returns>
+		public IDataReader ExecuteReader(IDbCommand command, CommandBehavior behavior)
+		{
 			PrepCommand(command, GetConnection());
-			return command.ExecuteReader();
+			return command.ExecuteReader(behavior);
 		}
 		private TResult ChangeType<TResult>(object value)
 		{
@@ -595,7 +628,19 @@ namespace SqlTools
 
 			_connectionString = connectionString;
 		}
-
+		/// <summary>
+		/// Occurs when [connection state changed].
+		/// </summary>
+		public event EventHandler<ConnectionStateChangedEventArgs> ConnectionStateChanged;
+		/// <summary>
+		/// Raises the connection state changed event.
+		/// </summary>
+		/// <param name="state">The state.</param>
+		protected virtual void RaiseConnectionStateChanged(ConnectionStates state)
+		{
+			if (ConnectionStateChanged == null) return;
+			ConnectionStateChanged(this, new ConnectionStateChangedEventArgs(state));
+		}
 		/// <summary>
 		/// Occurs when [connection changed].
 		/// </summary>
@@ -611,7 +656,20 @@ namespace SqlTools
 			if (ConnectionChanged == null) return;
 			ConnectionChanged(this, new ConnectionChangedEventArgs(oldConnectionString, newConnectionString));
 		}
-		
+
+		/// <summary>
+		/// Occurs when [connection created].
+		/// </summary>
+		public event EventHandler ConnectionCreated;
+
+		/// <summary>
+		/// Raises the connection created event.
+		/// </summary>
+		protected virtual void RaiseConnectionCreated()
+		{
+			if (ConnectionCreated == null) return;
+			ConnectionCreated(this, new EventArgs());
+		}
 #if (!NET35)
 		/// <summary>
 		/// Executes sql, and returns a strongly typed instance of a class contructed at runtime containing the values of the
@@ -662,5 +720,7 @@ namespace SqlTools
 			return result;
 		}
 #endif
+
+		
 	}
 }
