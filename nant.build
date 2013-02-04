@@ -32,6 +32,7 @@
 				<include name="CommonAssemblyInfo.cs" />
 				<include name="./SqlTools/**/*.cs" />
 				<exclude name="./SqlTools/DynamicResult.cs" if="${runtime != '40'}" />
+        <exclude name="./SqlTools/DynamicResultException.cs" if="${runtime != '40'}" />
 			</sources>
 		</csc>
 	</target>

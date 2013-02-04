@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlTools35", "SqlTools\SqlTools35.csproj", "{0A3F3CAB-8B17-42CF-909D-BB16BF9FB370}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlTools35.Tests", "SqlTools.Tests\SqlTools35.Tests.csproj", "{20D83275-2897-401B-99E7-238A6B4F57E4}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,10 +13,6 @@ Global
 		{0A3F3CAB-8B17-42CF-909D-BB16BF9FB370}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A3F3CAB-8B17-42CF-909D-BB16BF9FB370}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A3F3CAB-8B17-42CF-909D-BB16BF9FB370}.Release|Any CPU.Build.0 = Release|Any CPU
-		{20D83275-2897-401B-99E7-238A6B4F57E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{20D83275-2897-401B-99E7-238A6B4F57E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{20D83275-2897-401B-99E7-238A6B4F57E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{20D83275-2897-401B-99E7-238A6B4F57E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

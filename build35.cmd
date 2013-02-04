@@ -1,1 +1,1 @@
-nant -t:net-3.5 -D:version=1.4.0.1 -D:runtime=35 -D:define=NET35 clean build.sqltools.core zip-it-up
+nant -t:net-3.5 -D:version=1.4.0.5 -D:runtime=35 -D:define=NET35 clean build.sqltools.core zip-it-up

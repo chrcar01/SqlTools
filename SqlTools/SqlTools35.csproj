@@ -19,6 +19,7 @@
     <DefineConstants>TRACE;DEBUG;NET35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -41,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionChangedEventArgs.cs" />
+    <Compile Include="ConnectionStates.cs" />
     <Compile Include="DbHelperBase.cs" />
     <Compile Include="DbUtility.cs" />
     <Compile Include="ExecuteArrayOptions.cs" />
