@@ -51,9 +51,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FirebirdSql.Data.FirebirdClient">
-      <HintPath>..\lib\FirebirdSql.Data.FirebirdClient.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="nunit.framework, Version=2.5.2.9222, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -69,7 +66,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FbDbHelperTests.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\State.cs" />
     <Compile Include="OracleDbHelperTests.cs" />
@@ -99,10 +95,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SqlTools.FirebirdDbHelper\SqlTools.FirebirdDbHelper.csproj">
-      <Project>{DA71F93A-2994-4731-80D0-F069525E4FF4}</Project>
-      <Name>SqlTools.FirebirdDbHelper</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SqlTools.Oracle\SqlTools.Oracle.csproj">
       <Project>{255B2DE7-305B-46B6-8662-E32841AF5AF1}</Project>
       <Name>SqlTools.Oracle</Name>

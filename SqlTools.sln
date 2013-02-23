@@ -5,10 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlTools", "SqlTools\SqlToo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlTools.Tests", "SqlTools.Tests\SqlTools.Tests.csproj", "{8FE9B744-AE64-46F7-97FA-6EE515BBF981}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlTools.FirebirdDbHelper", "SqlTools.FirebirdDbHelper\SqlTools.FirebirdDbHelper.csproj", "{DA71F93A-2994-4731-80D0-F069525E4FF4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfFirebirdDemo", "WpfFirebirdDemo\WpfFirebirdDemo.csproj", "{D5D45B04-BC8B-407E-8805-1EE88B5F37FA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlTools.Oracle", "SqlTools.Oracle\SqlTools.Oracle.csproj", "{255B2DE7-305B-46B6-8662-E32841AF5AF1}"
 EndProject
 Global
@@ -41,26 +37,6 @@ Global
 		{8FE9B744-AE64-46F7-97FA-6EE515BBF981}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{8FE9B744-AE64-46F7-97FA-6EE515BBF981}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8FE9B744-AE64-46F7-97FA-6EE515BBF981}.Release|x86.ActiveCfg = Release|Any CPU
-		{DA71F93A-2994-4731-80D0-F069525E4FF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DA71F93A-2994-4731-80D0-F069525E4FF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DA71F93A-2994-4731-80D0-F069525E4FF4}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{DA71F93A-2994-4731-80D0-F069525E4FF4}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{DA71F93A-2994-4731-80D0-F069525E4FF4}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{DA71F93A-2994-4731-80D0-F069525E4FF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DA71F93A-2994-4731-80D0-F069525E4FF4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DA71F93A-2994-4731-80D0-F069525E4FF4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{DA71F93A-2994-4731-80D0-F069525E4FF4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{DA71F93A-2994-4731-80D0-F069525E4FF4}.Release|x86.ActiveCfg = Release|Any CPU
-		{D5D45B04-BC8B-407E-8805-1EE88B5F37FA}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{D5D45B04-BC8B-407E-8805-1EE88B5F37FA}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{D5D45B04-BC8B-407E-8805-1EE88B5F37FA}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{D5D45B04-BC8B-407E-8805-1EE88B5F37FA}.Debug|x86.ActiveCfg = Debug|x86
-		{D5D45B04-BC8B-407E-8805-1EE88B5F37FA}.Debug|x86.Build.0 = Debug|x86
-		{D5D45B04-BC8B-407E-8805-1EE88B5F37FA}.Release|Any CPU.ActiveCfg = Release|x86
-		{D5D45B04-BC8B-407E-8805-1EE88B5F37FA}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{D5D45B04-BC8B-407E-8805-1EE88B5F37FA}.Release|Mixed Platforms.Build.0 = Release|x86
-		{D5D45B04-BC8B-407E-8805-1EE88B5F37FA}.Release|x86.ActiveCfg = Release|x86
-		{D5D45B04-BC8B-407E-8805-1EE88B5F37FA}.Release|x86.Build.0 = Release|x86
 		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
