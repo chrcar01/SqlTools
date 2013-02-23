@@ -10,7 +10,8 @@
 	<target name="build-all">
 		<call target="clean" />
 		<call target="build.sqltools.core" />		
-		<call target="build.sqltools.firebirddbhelper" />				
+		<call target="build.sqltools.firebirddbhelper" />
+		<call target="build.sqltools.oracle" />
 	</target>
 	<target name="zip-it-up">
 		<zip ziplevel="9" zipfile="${bin.dir}/SqlTools-${version}-NET${runtime}-binaries.zip">
@@ -33,6 +34,28 @@
 				<include name="./SqlTools/**/*.cs" />
 				<exclude name="./SqlTools/DynamicResult.cs" if="${runtime != '40'}" />
         <exclude name="./SqlTools/DynamicResultException.cs" if="${runtime != '40'}" />
+			</sources>
+		</csc>
+	</target>
+	<target name="build.sqltools.oracle">
+		<csc
+			output="${bin.dir}/SqlTools.Oracle.dll"
+			doc="${bin.dir}/SqlTools.Oracle.xml"
+			debug="PdbOnly"
+			define="${define}"
+			target="library"
+			warnaserror="true"
+			warninglevel="4">
+			<nowarn>
+				<warning number="618" />
+			</nowarn>
+			<references>
+				<include name="${bin.dir}/SqlTools.dll" />
+				<include name="System.Data.OracleClient.dll" />
+			</references>
+			<sources>
+				<include name="./CommonAssemblyInfo.cs" />
+				<include name="./SqlTools.Oracle/**/*.cs" />
 			</sources>
 		</csc>
 	</target>

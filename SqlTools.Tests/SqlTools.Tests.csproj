@@ -65,12 +65,14 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.OracleClient" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FbDbHelperTests.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\State.cs" />
+    <Compile Include="OracleDbHelperTests.cs" />
     <Compile Include="SqlDbHelperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestHelper.cs" />
@@ -100,6 +102,10 @@
     <ProjectReference Include="..\SqlTools.FirebirdDbHelper\SqlTools.FirebirdDbHelper.csproj">
       <Project>{DA71F93A-2994-4731-80D0-F069525E4FF4}</Project>
       <Name>SqlTools.FirebirdDbHelper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SqlTools.Oracle\SqlTools.Oracle.csproj">
+      <Project>{255B2DE7-305B-46B6-8662-E32841AF5AF1}</Project>
+      <Name>SqlTools.Oracle</Name>
     </ProjectReference>
     <ProjectReference Include="..\SqlTools\SqlTools.csproj">
       <Project>{B86F3A73-4F3B-4A47-B248-0D99D0D4A2D0}</Project>
