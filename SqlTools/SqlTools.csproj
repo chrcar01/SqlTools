@@ -78,7 +78,6 @@
     <Compile Include="InitialConnectionStates.cs" />
     <Compile Include="SqlDbHelper.cs" />
     <Compile Include="SystemDataExtensions.cs" />
-    <Compile Include="Tuple.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

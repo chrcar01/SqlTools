@@ -142,7 +142,6 @@ namespace SqlTools
 		/// </summary>
 		/// <value>The default command timeout in seconds.</value>
 		int DefaultCommandTimeoutInSeconds { get; set; }
-#if (!NET35)
 		/// <summary>
 		/// Executes sql, and returns a strongly typed instance of a class contructed at runtime containing the values of the 
 		/// first row in the resultset.
@@ -169,7 +168,5 @@ namespace SqlTools
 		/// <param name="command">The command.</param>
 		/// <returns></returns>
 		IEnumerable<dynamic> ExecuteDynamics(IDbCommand command);
-#endif
-
 	}
 }

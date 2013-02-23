@@ -669,7 +669,7 @@ namespace SqlTools
 			if (ConnectionCreated == null) return;
 			ConnectionCreated(this, new EventArgs());
 		}
-#if (!NET35)
+
 		/// <summary>
 		/// Executes sql, and returns a strongly typed instance of a class contructed at runtime containing the values of the
 		/// first row in the resultset.
@@ -718,8 +718,6 @@ namespace SqlTools
 			}
 			return result;
 		}
-#endif
-
 		
 	}
 }
