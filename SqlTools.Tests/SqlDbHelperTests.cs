@@ -264,6 +264,16 @@ namespace SqlTools.Tests
 				Assert.AreEqual(68, data.Rows.Count);
 			}
 		}
+
+		[Test]
+		public void VerifyExecuteDictionary()
+		{
+			var states = _helper.ExecuteDictionary<string, string>("select code, name from state");
+			foreach (var kvp in states)
+			{
+				Console.WriteLine("{0}: {1}", kvp.Key, kvp.Value);
+			}
+		}
 	
 	}
 }

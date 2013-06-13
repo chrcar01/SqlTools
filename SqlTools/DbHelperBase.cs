@@ -601,6 +601,42 @@ namespace SqlTools
 			return result;
 		}
 
+
+		/// <summary>
+		/// Executes the command and populates dictionary with the first two values in the resultset.  The
+		/// first value is expected to be of type TKey and the second value of type TValue.
+		/// </summary>
+		/// <typeparam name="TKey">The type of the key.</typeparam>
+		/// <typeparam name="TValue">The type of the value.</typeparam>
+		/// <param name="command">The command to execute.</param>
+		/// <returns></returns>
+		public Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(IDbCommand command)
+		{
+			var result = new Dictionary<TKey, TValue>();
+			using (IDataReader reader = ExecuteReader(command))
+			{
+				while (reader.Read())
+				{
+					result.Add(reader.GetValue<TKey>(0), reader.GetValue<TValue>(1));
+				}
+			}
+			return result;
+		}
+
+
+		/// <summary>
+		/// Executes a command with the query and populates a dictionary with the first two values in the resultset.  The
+		/// first value is expected to be of type TKey and the second value of type TValue.
+		/// </summary>
+		/// <typeparam name="TKey">The type of the key.</typeparam>
+		/// <typeparam name="TValue">The type of the value.</typeparam>
+		/// <param name="commandText">The query to execute.</param>
+		/// <returns></returns>
+		public Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(string commandText)
+		{
+			return ExecuteDictionary<TKey, TValue>(CreateCommand(commandText));
+		}
+
 		private T CreateFromRow<T>(DataRow row) where T : new()
 		{
 			T result = new T();
@@ -718,6 +754,9 @@ namespace SqlTools
 			}
 			return result;
 		}
+
+
+
 		
 	}
 }

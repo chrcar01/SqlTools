@@ -120,6 +120,24 @@ namespace SqlTools
 		/// <returns>A data reader containing the results of executing the command.</returns>
 		IDataReader ExecuteReader(IDbCommand command, CommandBehavior behavior);
 		/// <summary>
+		/// Executes the command and populates dictionary with the first two values in the resultset.  The
+		/// first value is expected to be of type TKey and the second value of type TValue.
+		/// </summary>
+		/// <typeparam name="TKey">The type of the key.</typeparam>
+		/// <typeparam name="TValue">The type of the value.</typeparam>
+		/// <param name="command">The command to execute.</param>
+		/// <returns></returns>
+		Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(IDbCommand command);
+		/// <summary>
+		/// Executes a command with the query and populates a dictionary with the first two values in the resultset.  The
+		/// first value is expected to be of type TKey and the second value of type TValue.
+		/// </summary>
+		/// <typeparam name="TKey">The type of the key.</typeparam>
+		/// <typeparam name="TValue">The type of the value.</typeparam>
+		/// <param name="commandText">The query to execute.</param>
+		/// <returns></returns>
+		Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(string commandText);
+		/// <summary>
 		/// Changes the connection.
 		/// </summary>
 		/// <param name="connectionString">The connection string.</param>
