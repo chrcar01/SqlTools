@@ -1,1 +1,1 @@
-nant -D:version=1.5.0.2 build-all zip-it-up
+nant -D:version=1.5.1.1 build-all zip-it-up
