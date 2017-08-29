@@ -1,5 +1,7 @@
 # SqlTools
 
+[![Build Status](https://travis-ci.org/chrcar01/SqlTools.svg?branch=master)](https://travis-ci.org/chrcar01/SqlTools)
+
 ## Purpose
 
 Even if you're using NHibernate or Entity Framework, or your favorite ORM, sometimes, it's the right decision to execute inline sql in your application.  SqlTools simplifies executing inline sql by handling most of the ADO.NET code needed to perform the task.
