@@ -1,1 +1,0 @@
-nant -D:version=1.5.1.1 build-all zip-it-up

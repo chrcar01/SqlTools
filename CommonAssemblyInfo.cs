@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Chris Carter")]
 [assembly: AssemblyProduct("SqlTools")]
-[assembly: AssemblyCopyright("Copyright © Chris Carter 2013")]
+[assembly: AssemblyCopyright("Copyright © Chris Carter 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
