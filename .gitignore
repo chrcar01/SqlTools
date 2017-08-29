@@ -1,9 +1,8 @@
-
-/SqlTools/SqlTools.suo
-/SqlTools/bin/Debug/SqlTools.XML
-/SqlTools/bin/Debug/SqlTools.dll
-/SqlTools/bin/Debug/SqlTools.pdb
-/SqlTools/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
-/SqlTools/obj/Debug/SqlTools.csproj.FileListAbsolute.txt
-/SqlTools/obj/Debug/SqlTools.dll
-/SqlTools/obj/Debug/SqlTools.pdb
+*.suo
+/.vs
+/SqlTools/bin
+/SqlTools/obj
+/SqlTools.Oracle/bin
+/SqlTools.Oracle/obj
+/SqlTools.Tests/bin
+/SqlTools.Tests/obj
