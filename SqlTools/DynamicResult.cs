@@ -11,8 +11,17 @@ namespace SqlTools
 	/// </summary>
 	public class DynamicResult : DynamicObject
 	{
-		//should contain a case insensitive list of property values
-		private IDictionary<string, dynamic> _values;
+        /// <summary>
+        /// Returns a list of the property names contained in this dynamic instance.
+        /// </summary>
+        /// <returns></returns>
+	    public override IEnumerable<string> GetDynamicMemberNames()
+	    {
+	        return _values.Keys;
+	    }
+
+	    //should contain a case insensitive list of property values
+		private readonly IDictionary<string, dynamic> _values;
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DynamicResult"/> class.
 		/// </summary>

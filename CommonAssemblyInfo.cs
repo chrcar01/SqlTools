@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Chris Carter")]
 [assembly: AssemblyProduct("SqlTools")]
-[assembly: AssemblyCopyright("Copyright © Chris Carter 2017")]
+[assembly: AssemblyCopyright("Copyright © Chris Carter 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -15,5 +15,5 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("edd28c22-9d0c-4a5e-a5c9-08d1caf548b7")]
 
-[assembly: AssemblyVersion("1.5.1.1")]
-[assembly: AssemblyFileVersion("1.5.1.1")]
+[assembly: AssemblyVersion("1.6.0.1")]
+[assembly: AssemblyFileVersion("1.6.0.1")]

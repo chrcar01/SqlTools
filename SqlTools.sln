@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlTools", "SqlTools\SqlToo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlTools.Tests", "SqlTools.Tests\SqlTools.Tests.csproj", "{8FE9B744-AE64-46F7-97FA-6EE515BBF981}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlTools.Oracle", "SqlTools.Oracle\SqlTools.Oracle.csproj", "{255B2DE7-305B-46B6-8662-E32841AF5AF1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,18 +37,11 @@ Global
 		{8FE9B744-AE64-46F7-97FA-6EE515BBF981}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{8FE9B744-AE64-46F7-97FA-6EE515BBF981}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8FE9B744-AE64-46F7-97FA-6EE515BBF981}.Release|x86.ActiveCfg = Release|Any CPU
-		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{255B2DE7-305B-46B6-8662-E32841AF5AF1}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EC032377-0C71-4C96-A862-9FE635434D5B}
 	EndGlobalSection
 EndGlobal
