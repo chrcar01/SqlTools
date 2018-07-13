@@ -167,7 +167,7 @@ namespace SqlTools
 		/// <typeparam name="T">The type of the data returned.</typeparam>
 		/// <param name="commandText">The query to execute.</param>
 		/// <returns>The first column of the first row of the result of executeing the query.</returns>
-		public T ExecuteScalar<T>(string commandText)
+		public virtual T ExecuteScalar<T>(string commandText)
 		{
 			return this.ExecuteScalar<T>(CreateCommand(commandText));
 		}
@@ -180,7 +180,7 @@ namespace SqlTools
 		/// <typeparam name="T">The type of the data returned.</typeparam>
 		/// <param name="command">The command to execute.</param>
 		/// <returns>The first colunm of the first row of the result of executing the command.</returns>
-		public T ExecuteScalar<T>(IDbCommand command)
+		public virtual T ExecuteScalar<T>(IDbCommand command)
 		{
 			T result = default(T);
 			using (var cn = GetConnection())
@@ -201,7 +201,7 @@ namespace SqlTools
 		/// <returns>
 		/// An array of all of the values of the first column of all of the rows in the resultset.
 		/// </returns>
-		public TItem[] ExecuteArray<TItem>(string commandText)
+		public virtual TItem[] ExecuteArray<TItem>(string commandText)
 		{
 			ExecuteArrayOptions options = ExecuteArrayOptions.None;
 			return ExecuteArray<TItem>(commandText, options);
@@ -215,7 +215,7 @@ namespace SqlTools
 		/// <returns>
 		/// An array of all of the values of the first column of all of the rows in the resultset.
 		/// </returns>
-		public TItem[] ExecuteArray<TItem>(string commandText, ExecuteArrayOptions options)
+		public virtual TItem[] ExecuteArray<TItem>(string commandText, ExecuteArrayOptions options)
 		{
 			return this.ExecuteArray<TItem>(CreateCommand(commandText), options);
 		}
@@ -228,7 +228,7 @@ namespace SqlTools
 		/// <returns>
 		/// An array of all of the values of the first column of all of the rows in the resultset.
 		/// </returns>
-		public TItem[] ExecuteArray<TItem>(IDbCommand command)
+		public virtual TItem[] ExecuteArray<TItem>(IDbCommand command)
 		{
 			ExecuteArrayOptions options = ExecuteArrayOptions.None;
 			return ExecuteArray<TItem>(command, options);
@@ -242,7 +242,7 @@ namespace SqlTools
 		/// <returns>
 		/// An array of all of the values of the first column of all of the rows in the resultset.
 		/// </returns>
-		public TItem[] ExecuteArray<TItem>(IDbCommand command, ExecuteArrayOptions options)
+		public virtual TItem[] ExecuteArray<TItem>(IDbCommand command, ExecuteArrayOptions options)
 		{
 			var result = new List<TItem>();
 			using (var reader = this.ExecuteReader(command))
@@ -265,7 +265,7 @@ namespace SqlTools
 		/// </summary>
 		/// <param name="commandText">The query to execute.</param>
 		/// <returns>The number of rows affected.</returns>
-		public int ExecuteNonQuery(string commandText)
+		public virtual int ExecuteNonQuery(string commandText)
 		{
 			return this.ExecuteNonQuery(CreateCommand(commandText));
 		}
@@ -275,7 +275,7 @@ namespace SqlTools
 		/// </summary>
 		/// <param name="command">The command to execute.</param>
 		/// <returns>The number of rows affected.</returns>
-		public int ExecuteNonQuery(IDbCommand command)
+		public virtual int ExecuteNonQuery(IDbCommand command)
 		{
 			using (var cn = this.GetConnection())
 			{
@@ -290,7 +290,7 @@ namespace SqlTools
 		/// </summary>
 		/// <param name="commandText">The query to execute.</param>
 		/// <returns>DataTable containing the results of executing the query.</returns>
-		public DataTable ExecuteDataTable(string commandText)
+		public virtual DataTable ExecuteDataTable(string commandText)
 		{
 			return this.ExecuteDataTable(CreateCommand(commandText));
 		}
@@ -300,7 +300,7 @@ namespace SqlTools
 		/// </summary>
 		/// <param name="command">The command to execute.</param>
 		/// <returns>DataTable containing the results of executing the command.</returns>
-		public DataTable ExecuteDataTable(IDbCommand command)
+		public virtual DataTable ExecuteDataTable(IDbCommand command)
 		{
 			var result = new DataSet();
 			using (var cn = this.GetConnection())
@@ -320,7 +320,7 @@ namespace SqlTools
 		/// <returns>
 		/// A data reader containing the results of executing the query.
 		/// </returns>
-		public IDataReader ExecuteReader(string commandText)
+		public virtual IDataReader ExecuteReader(string commandText)
 		{
 			return this.ExecuteReader(CreateCommand(commandText), CommandBehavior.CloseConnection);
 		}
@@ -333,7 +333,7 @@ namespace SqlTools
 		/// <returns>
 		/// A SqlDataReader containing the resultset.
 		/// </returns>
-		public IDataReader ExecuteReader(string commandText, CommandBehavior behavior)
+		public virtual IDataReader ExecuteReader(string commandText, CommandBehavior behavior)
 		{
 			return this.ExecuteReader(CreateCommand(commandText), behavior);
 		}
@@ -346,7 +346,7 @@ namespace SqlTools
 		/// <returns>
 		/// A data reader containing the results of executing the command.
 		/// </returns>
-		public IDataReader ExecuteReader(IDbCommand command)
+		public virtual IDataReader ExecuteReader(IDbCommand command)
 		{
 			return ExecuteReader(command, CommandBehavior.CloseConnection);
 		}
@@ -359,7 +359,7 @@ namespace SqlTools
 		/// <returns>
 		/// A data reader containing the results of executing the command.
 		/// </returns>
-		public IDataReader ExecuteReader(IDbCommand command, CommandBehavior behavior)
+		public virtual IDataReader ExecuteReader(IDbCommand command, CommandBehavior behavior)
 		{
 			PrepCommand(command, GetConnection());
 			return command.ExecuteReader(behavior);
@@ -424,7 +424,7 @@ namespace SqlTools
 		/// <typeparam name="TFirst">The type of the first.</typeparam>
 		/// <param name="commandText">The command text.</param>
 		/// <returns></returns>
-		public IEnumerable<Tuple<TFirst>> ExecuteTuple<TFirst>(string commandText)
+		public virtual IEnumerable<Tuple<TFirst>> ExecuteTuple<TFirst>(string commandText)
 		{
 			return ExecuteTuple<TFirst>(CreateCommand(commandText));
 		}
@@ -435,7 +435,7 @@ namespace SqlTools
 		/// <typeparam name="TFirst">The type of the first.</typeparam>
 		/// <param name="command">The command.</param>
 		/// <returns></returns>
-		public IEnumerable<Tuple<TFirst>> ExecuteTuple<TFirst>(IDbCommand command)
+		public virtual IEnumerable<Tuple<TFirst>> ExecuteTuple<TFirst>(IDbCommand command)
 		{
 			List<Tuple<TFirst>> tuples = new List<Tuple<TFirst>>();
 			using (IDataReader reader = ExecuteReader(command))
@@ -455,7 +455,7 @@ namespace SqlTools
 		/// <typeparam name="TSecond">The type of the second.</typeparam>
 		/// <param name="commandText">The command text.</param>
 		/// <returns></returns>
-		public IEnumerable<Tuple<TFirst, TSecond>> ExecuteTuple<TFirst, TSecond>(string commandText)
+		public virtual IEnumerable<Tuple<TFirst, TSecond>> ExecuteTuple<TFirst, TSecond>(string commandText)
 		{
 			return ExecuteTuple<TFirst, TSecond>(CreateCommand(commandText));
 		}
@@ -467,7 +467,7 @@ namespace SqlTools
 		/// <typeparam name="TSecond">The type of the second.</typeparam>
 		/// <param name="command">The command.</param>
 		/// <returns></returns>
-		public IEnumerable<Tuple<TFirst, TSecond>> ExecuteTuple<TFirst, TSecond>(IDbCommand command)
+		public virtual IEnumerable<Tuple<TFirst, TSecond>> ExecuteTuple<TFirst, TSecond>(IDbCommand command)
 		{
 			List<Tuple<TFirst, TSecond>> tuples = new List<Tuple<TFirst, TSecond>>();
 			using (IDataReader reader = ExecuteReader(command))
@@ -489,7 +489,7 @@ namespace SqlTools
 		/// <typeparam name="TThird">The type of the third.</typeparam>
 		/// <param name="commandText">The command text.</param>
 		/// <returns></returns>
-		public IEnumerable<Tuple<TFirst, TSecond, TThird>> ExecuteTuple<TFirst, TSecond, TThird>(string commandText)
+		public virtual IEnumerable<Tuple<TFirst, TSecond, TThird>> ExecuteTuple<TFirst, TSecond, TThird>(string commandText)
 		{
 			return ExecuteTuple<TFirst, TSecond, TThird>(CreateCommand(commandText));
 		}
@@ -502,7 +502,7 @@ namespace SqlTools
 		/// <typeparam name="TThird">The type of the third.</typeparam>
 		/// <param name="command">The command.</param>
 		/// <returns></returns>
-		public IEnumerable<Tuple<TFirst, TSecond, TThird>> ExecuteTuple<TFirst, TSecond, TThird>(IDbCommand command)
+		public virtual IEnumerable<Tuple<TFirst, TSecond, TThird>> ExecuteTuple<TFirst, TSecond, TThird>(IDbCommand command)
 		{
 			var tuples = new List<Tuple<TFirst, TSecond, TThird>>();
 			using (var reader = ExecuteReader(command))
@@ -525,7 +525,7 @@ namespace SqlTools
 		/// <typeparam name="T">Represents the type that will be mapped to the first row of the resultset.</typeparam>
 		/// <param name="commandText">The sql command to execute.</param>
 		/// <returns></returns>
-		public T ExecuteSingle<T>(string commandText) where T : new()
+		public virtual T ExecuteSingle<T>(string commandText) where T : new()
 		{
 			return ExecuteSingle<T>(CreateCommand(commandText));
 		}
@@ -538,7 +538,7 @@ namespace SqlTools
 		/// <typeparam name="T">Represents the type that will be mapped to the first row of the resultset.</typeparam>
 		/// <param name="command">The command to execute.</param>
 		/// <returns></returns>
-		public T ExecuteSingle<T>(IDbCommand command) where T : new()
+		public virtual T ExecuteSingle<T>(IDbCommand command) where T : new()
 		{
 			T result = default(T);
 			using (var data = ExecuteDataTable(command))
@@ -557,7 +557,7 @@ namespace SqlTools
 		/// </summary>
 		/// <typeparam name="T">Represents the type that will be be mapped to each row in the resultset.</typeparam>
 		/// <returns></returns>
-		public IEnumerable<T> ExecuteMultiple<T>() where T : new()
+		public virtual IEnumerable<T> ExecuteMultiple<T>() where T : new()
 		{
 			return ExecuteMultiple<T>(String.Format("select * from [{0}]", typeof(T).Name));
 		}
@@ -571,7 +571,7 @@ namespace SqlTools
 		/// <typeparam name="T">Represents the type that will be be mapped to each row in the resultset.</typeparam>
 		/// <param name="commandText">The sql command execute.</param>
 		/// <returns></returns>
-		public IEnumerable<T> ExecuteMultiple<T>(string commandText) where T : new()
+		public virtual IEnumerable<T> ExecuteMultiple<T>(string commandText) where T : new()
 		{
 			return ExecuteMultiple<T>(CreateCommand(commandText));
 		}
@@ -584,7 +584,7 @@ namespace SqlTools
 		/// <typeparam name="T">Represents the type that will be be mapped to each row in the resultset.</typeparam>
 		/// <param name="command">The command to execute.</param>
 		/// <returns></returns>
-		public IEnumerable<T> ExecuteMultiple<T>(IDbCommand command) where T : new()
+		public virtual IEnumerable<T> ExecuteMultiple<T>(IDbCommand command) where T : new()
 		{
 			List<T> result = null;
 			using (var data = ExecuteDataTable(command))
@@ -610,7 +610,7 @@ namespace SqlTools
 		/// <typeparam name="TValue">The type of the value.</typeparam>
 		/// <param name="command">The command to execute.</param>
 		/// <returns></returns>
-		public Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(IDbCommand command)
+		public virtual Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(IDbCommand command)
 		{
 			var result = new Dictionary<TKey, TValue>();
 			using (IDataReader reader = ExecuteReader(command))
@@ -632,7 +632,7 @@ namespace SqlTools
 		/// <typeparam name="TValue">The type of the value.</typeparam>
 		/// <param name="commandText">The query to execute.</param>
 		/// <returns></returns>
-		public Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(string commandText)
+		public virtual Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(string commandText)
 		{
 			return ExecuteDictionary<TKey, TValue>(CreateCommand(commandText));
 		}
@@ -712,7 +712,7 @@ namespace SqlTools
 		/// </summary>
 		/// <param name="sql">The SQL.</param>
 		/// <returns></returns>
-		public dynamic ExecuteDynamic(string sql)
+		public virtual dynamic ExecuteDynamic(string sql)
 		{
 			return ExecuteDynamic(CreateCommand(sql));
 		}
@@ -722,7 +722,7 @@ namespace SqlTools
 		/// </summary>
 		/// <param name="command">The command.</param>
 		/// <returns></returns>
-		public dynamic ExecuteDynamic(IDbCommand command)
+		public virtual dynamic ExecuteDynamic(IDbCommand command)
 		{
 			var data = ExecuteDataTable(command);
 			return new DynamicResult(data.Columns, data.Rows[0]);
@@ -732,7 +732,7 @@ namespace SqlTools
 		/// </summary>
 		/// <param name="sql">The SQL.</param>
 		/// <returns></returns>
-		public IEnumerable<dynamic> ExecuteDynamics(string sql)
+		public virtual IEnumerable<dynamic> ExecuteDynamics(string sql)
 		{
 			return ExecuteDynamics(CreateCommand(sql));
 		}
@@ -741,7 +741,7 @@ namespace SqlTools
 		/// </summary>
 		/// <param name="command">The command.</param>
 		/// <returns></returns>
-		public IEnumerable<dynamic> ExecuteDynamics(IDbCommand command)
+		public virtual IEnumerable<dynamic> ExecuteDynamics(IDbCommand command)
 		{
 			var result = new List<dynamic>();
 			var data = ExecuteDataTable(command);
