@@ -57,6 +57,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -75,10 +76,12 @@
     <Compile Include="ExecuteArrayOptions.cs" />
     <Compile Include="ConnectionChangedEventArgs.cs" />
     <Compile Include="DbUtility.cs" />
+    <Compile Include="IDataReaderObjectMapper.cs" />
     <Compile Include="IDbHelper.cs" />
     <Compile Include="IDbHelperMap.cs" />
     <Compile Include="IDbHelperTuple.cs" />
     <Compile Include="InitialConnectionStates.cs" />
+    <Compile Include="PropertyDescriptorDataReaderObjectMapper.cs" />
     <Compile Include="SqlDbHelper.cs" />
     <Compile Include="SystemDataExtensions.cs" />
   </ItemGroup>

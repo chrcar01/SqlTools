@@ -1,16 +1,16 @@
 ﻿using NUnit.Framework;
 using SqlTools.Tests.Models;
 using System;
-using System.Configuration;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Linq;
 
 namespace SqlTools.Tests
 {
-	[TestFixture]
+    [TestFixture]
 	public class SqlDbHelperTests
 	{
 		
@@ -274,6 +274,69 @@ namespace SqlTools.Tests
 				Console.WriteLine("{0}: {1}", kvp.Key, kvp.Value);
 			}
 		}
-	
+
+	    [Test]
+        [Ignore("Benchmark tests should be ignored")]
+	    public void BenchMarkDefault()
+	    {
+	        var stopwatch = new Stopwatch();
+            stopwatch.Start();
+	        for (int i = 0; i < 10000; i++)
+	        {
+	            var states = _helper.ExecuteMultiple<State>("select * from state");
+	        }
+            stopwatch.Stop();
+	        Console.WriteLine($"Time: {stopwatch.ElapsedMilliseconds}");
+	    }
+
+	    [Test]
+	    [Ignore("Benchmark tests should be ignored")]
+	    public void BenchMarkFastmember()
+	    {
+            var helper = new SqlDbHelper(_helper.ConnectionString, new FastmemberDataReaderObjectMapper());
+	        var stopwatch = new Stopwatch();
+	        stopwatch.Start();
+	        for (int i = 0; i < 10000; i++)
+	        {
+	            var states = helper.ExecuteMultiple<State>("select * from state");
+	        }
+	        stopwatch.Stop();
+	        Console.WriteLine($"Time: {stopwatch.ElapsedMilliseconds}");
+	    }
+
+
+        
+
+	    [Test]
+	    [Ignore("Benchmark tests should be ignored")]
+	    public void FastmemberVersusDefault()
+	    {
+	        long BenchMark(IDbHelper helper, int iterations)
+	        {
+	            var stopwatch = new Stopwatch();
+	            stopwatch.Start();
+	            for (int i = 0; i < iterations; i++)
+	            {
+	                var states = helper.ExecuteMultiple<State>("select * from state");
+	            }
+
+	            stopwatch.Stop();
+	            return stopwatch.ElapsedMilliseconds;
+	        }
+
+	        var connectionString = ConfigurationManager.ConnectionStrings["sqltools"].ConnectionString;
+	        var count = 10000;
+	        for (int i = 0; i < 3; i++)
+	        {
+
+	            var defaultHelper = new SqlDbHelper(connectionString);
+	            Console.WriteLine($"Default: {BenchMark(defaultHelper, count)}ms");
+
+	            var fastmemberHelper = new SqlDbHelper(connectionString, new FastmemberDataReaderObjectMapper());
+	            Console.WriteLine($"Fastmember: {BenchMark(fastmemberHelper, count)}ms");
+
+
+	        }
+	    }
 	}
 }

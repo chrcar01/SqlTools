@@ -5,11 +5,12 @@ using System.Data;
 
 namespace SqlTools
 {
-	/// <summary>
-	/// Implementation of IDbhelper for SqlServer databases.
-	/// </summary>
-	public abstract class DbHelperBase : IDbHelper
-	{
+    /// <summary>
+    /// Implementation of IDbhelper for SqlServer databases.
+    /// </summary>
+    public abstract class DbHelperBase : IDbHelper
+    {
+        private readonly IDataReaderObjectMapper _mapper;
 		/// <summary>
 		/// The initial value[Int32.MinValue] for DefaultCommandTimeoutInSeconds.
 		/// </summary>
@@ -47,11 +48,14 @@ namespace SqlTools
 		/// </summary>
 		/// <param name="connectionString">The connection string.</param>
 		/// <param name="defaultCommandTimeoutInSeconds">The default command timeout in seconds. The default for this value is whatever SqlCommand.CommandTimeout returns which is usually 30.</param>
-		public DbHelperBase(string connectionString, int defaultCommandTimeoutInSeconds)
+		/// <param name="mapper">Component capable of mapping a row in an IDataReader to an instance of a model.</param>
+        protected DbHelperBase(string connectionString, int defaultCommandTimeoutInSeconds, IDataReaderObjectMapper mapper)
 		{
 			_connectionString = connectionString;
 			_defaultCommandTimeoutInSeconds = defaultCommandTimeoutInSeconds;
+		    _mapper = mapper;
 		}
+
 
 
 		private int _commandProviderCommandTimeout = INITIAL_COMMAND_PROVIDER_COMMAND_TIMEOUT;
@@ -541,12 +545,15 @@ namespace SqlTools
 		public virtual T ExecuteSingle<T>(IDbCommand command) where T : new()
 		{
 			T result = default(T);
-			using (var data = ExecuteDataTable(command))
-			{
-				if (data.Rows.Count > 0)
-					result = CreateFromRow<T>(data.Rows[0]);
-			}
-			return result;
+		    using (var reader = ExecuteReader(command))
+		    {
+		        if (reader.Read())
+		        {
+		            result = _mapper.Map<T>(reader);
+		        }
+		    }
+
+		    return result;
 		}
 
 		/// <summary>
@@ -587,18 +594,16 @@ namespace SqlTools
 		public virtual IEnumerable<T> ExecuteMultiple<T>(IDbCommand command) where T : new()
 		{
 			List<T> result = null;
-			using (var data = ExecuteDataTable(command))
-			{
-				if (data.Rows.Count > 0)
-				{
-					foreach (DataRow row in data.Rows)
-					{
-						if (result == null) result = new List<T>();
-						result.Add(CreateFromRow<T>(row));
-					}
-				}
-			}
-			return result;
+		    using (var reader = ExecuteReader(command))
+		    {
+		        while (reader.Read())
+		        {
+		            if (result == null) result = new List<T>();
+                    result.Add(_mapper.Map<T>(reader));
+		        }
+		    }
+
+		    return result;
 		}
 
 
@@ -637,20 +642,8 @@ namespace SqlTools
 			return ExecuteDictionary<TKey, TValue>(CreateCommand(commandText));
 		}
 
-		private T CreateFromRow<T>(DataRow row) where T : new()
-		{
-			T result = new T();
-			PropertyDescriptorCollection props = TypeDescriptor.GetProperties(result);
-			foreach (PropertyDescriptor prop in props)
-			{
-				if (!row.Table.Columns.Contains(prop.Name) || row.IsNull(prop.Name))
-					continue;
-
-				prop.SetValue(result, ChangeType(row[prop.Name], prop.PropertyType));
-			}
-
-			return result;
-		}
+	    
+		
 
 		/// <summary>
 		/// Changes the connection.

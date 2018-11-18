@@ -6,7 +6,7 @@ namespace SqlTools.Tests
 	public class TestHelper : DbHelperBase
 	{
 		public TestHelper(string connectionString)
-			: base(connectionString, 30)
+			: base(connectionString, 30, new PropertyDescriptorDataReaderObjectMapper())
 		{
 
 		}
