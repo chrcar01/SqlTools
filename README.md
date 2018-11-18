@@ -1,6 +1,6 @@
 # SqlTools
 
-[![Build Status](https://travis-ci.org/chrcar01/SqlTools.svg?branch=master)](https://travis-ci.org/chrcar01/SqlTools)
+[![Build status](https://ci.appveyor.com/api/projects/status/vch56oy3aj2eq37k/branch/master?svg=true)](https://ci.appveyor.com/project/chrcar01/sqltools/branch/master)
 
 ## Purpose
 
