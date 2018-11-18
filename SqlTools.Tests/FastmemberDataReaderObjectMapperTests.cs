@@ -7,6 +7,7 @@ using System.Data;
 namespace SqlTools.Tests
 {
     [TestFixture]
+    [Category("Unit")]
     public class FastmemberDataReaderObjectMapperTests
     {
         private class TestModel

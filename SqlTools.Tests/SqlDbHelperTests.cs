@@ -11,6 +11,7 @@ using System.Linq;
 namespace SqlTools.Tests
 {
     [TestFixture]
+    [Category("System")]
 	public class SqlDbHelperTests
 	{
 		

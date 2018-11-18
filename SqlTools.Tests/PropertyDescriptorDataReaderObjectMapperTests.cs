@@ -7,6 +7,7 @@ using SqlTools.Tests.Models;
 namespace SqlTools.Tests
 {
     [TestFixture]
+    [Category("Unit")]
     public class PropertyDescriptorDataReaderObjectMapperTests
     {
         private class TestModel

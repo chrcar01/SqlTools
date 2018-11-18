@@ -9,6 +9,7 @@ using System.Collections.Generic;
 namespace SqlTools.Tests
 {
 	[TestFixture]
+    [Category("System")]
 	public class WithoutSqlToolsTests
 	{		
 		[Test]
