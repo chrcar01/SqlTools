@@ -30,16 +30,7 @@ namespace SqlTools
 		/// <param name="command">The command to execute.</param>
 		/// <returns></returns>
 		T ExecuteSingle<T>(IDbCommand command) where T : new();
-
-		/// <summary>
-		/// Selects all rows from the table with the same name as the type T.  
-		/// Attempts to map each row in the resultset to an instance of type T.  
-		/// If no results are returned from the query, the method should return null.  
-		/// The names used in the query MUST match the property names of the type T in order for the mapping to work.
-		/// </summary>
-		/// <typeparam name="T">Represents the type that will be be mapped to each row in the resultset.</typeparam>
-		IEnumerable<T> ExecuteMultiple<T>() where T : new();
-
+        
 		/// <summary>
 		/// Executes the sql statement and attempts to map each row in the resultset to an instance of type T.  If no
 		/// results are returned from the query, the method should return null.  The names used

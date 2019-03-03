@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SqlTools
 {
@@ -186,5 +187,114 @@ namespace SqlTools
 		/// <param name="command">The command.</param>
 		/// <returns></returns>
 		IEnumerable<dynamic> ExecuteDynamics(IDbCommand command);
+        /// <summary>
+        /// Executes a query and returns the number of rows affected.
+        /// </summary>
+        /// <param name="commandText">The query to execute.</param>
+        /// <returns>The number of rows affected.</returns>
+        Task<int> ExecuteNonQueryAsync(string commandText);
+        
+        /// <summary>
+        /// Executes a command and returns the number of rows affected.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <returns>The number of rows affected.</returns>
+        Task<int> ExecuteNonQueryAsync(IDbCommand command);
+
+        /// <summary>
+		/// Executes a query and returns the value in the first column of the first row of the resultset.
+		/// </summary>
+		/// <typeparam name="T">The type of the value returned.</typeparam>
+		/// <param name="commandText">The query to execute.</param>
+		/// <returns>The value in the first column of the first row of the resultset.</returns>
+		Task<T> ExecuteScalarAsync<T>(string commandText);
+
+        /// <summary>
+        /// Executes a command a returns the value in the first column of the first row of the resultset.
+        /// </summary>
+        /// <typeparam name="T">The type of the value returned.</typeparam>
+        /// <param name="command">The command to execute.</param>
+        /// <returns>The value in the first column of the first row of the resultset.</returns>
+        Task<T> ExecuteScalarAsync<T>(IDbCommand command);
+
+        
+        /// <summary>
+		/// Executes the query, and returns an array of values from the first column of all rows in the resultset.
+		/// </summary>
+		/// <typeparam name="TItem">The type of value in the first column.</typeparam>
+		/// <param name="commandText">The query to execute.</param>
+		/// <param name="options">The options that are applied to how arrays are created.</param>
+		/// <returns>
+		/// An array of values from the first column of all rows in the resultset.
+		/// </returns>
+        Task<TItem[]> ExecuteArrayAsync<TItem>(string commandText, ExecuteArrayOptions options = ExecuteArrayOptions.None);
+
+        /// <summary>
+        /// Executes the command, and returns an array of values from the first column of all rows in the resultset.
+        /// </summary>
+        /// <typeparam name="TItem">The type of vlaue in the first column.</typeparam>
+        /// <param name="command">The query to execute.</param>
+        /// <param name="options">The options that are applied to how arrays are created.</param>
+        /// <returns>An array of value sfrom the first column of all rows in the resultset.</returns>
+        Task<TItem[]> ExecuteArrayAsync<TItem>(IDbCommand command, ExecuteArrayOptions options = ExecuteArrayOptions.None);
+
+        /// <summary>
+		/// Executes the sql statement and attempts to map the first row of the resultset to the
+		/// specified type T.  If there are no results, the default for type T is returned.  The names used
+		/// in the query MUST match the property names of the type T in order for the mapping to work.
+		/// </summary>
+		/// <typeparam name="T">Represents the type that will be mapped to the first row of the resultset.</typeparam>
+		/// <param name="commandText">The sql command to execute.</param>
+		/// <returns></returns>
+		Task<T> ExecuteSingleAsync<T>(string commandText) where T : new();
+
+        /// <summary>
+        /// Executes the sql command and attempts to map the first row of the resultset to the
+        /// specified type T.  If there are no results, the default for type T is returned.  The names used
+        /// in the query MUST match the property names of the type T in order for the mapping to work.
+        /// </summary>
+        /// <typeparam name="T">Represents the type that will be mapped to the first row of the resultset.</typeparam>
+        /// <param name="command">The command to execute.</param>
+        /// <returns></returns>
+        Task<T> ExecuteSingleAsync<T>(IDbCommand command) where T : new();
+        
+        /// <summary>
+        /// Executes the sql statement and attempts to map each row in the resultset to an instance of type T.  If no
+        /// results are returned from the query, the method should return null.  The names used
+        /// in the query MUST match the property names of the type T in order for the mapping to work.
+        /// </summary>
+        /// <typeparam name="T">Represents the type that will be be mapped to each row in the resultset.</typeparam>
+        /// <param name="commandText">The sql command execute.</param>
+        /// <returns></returns>
+        Task<IEnumerable<T>> ExecuteMultipleAsync<T>(string commandText) where T : new();
+
+        /// <summary>
+        /// Executes the sql command and attempts to map each row in the resultset to an instance of type T.  If no
+        /// results are returned from the query, the method should return null.  The names used
+        /// in the query MUST match the property names of the type T in order for the mapping to work.
+        /// </summary>
+        /// <typeparam name="T">Represents the type that will be be mapped to each row in the resultset.</typeparam>
+        /// <param name="command">The command to execute.</param>
+        /// <returns></returns>
+        Task<IEnumerable<T>> ExecuteMultipleAsync<T>(IDbCommand command) where T : new();
+
+        /// <summary>
+        /// Executes the command and populates dictionary with the first two values in the resultset.  The
+        /// first value is expected to be of type TKey and the second value of type TValue.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="command">The command to execute.</param>
+        /// <returns></returns>
+        Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(IDbCommand command);
+        /// <summary>
+        /// Executes a command with the query and populates a dictionary with the first two values in the resultset.  The
+        /// first value is expected to be of type TKey and the second value of type TValue.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="commandText">The query to execute.</param>
+        /// <returns></returns>
+        Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(string commandText);
 	}
 }
