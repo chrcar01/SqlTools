@@ -47,7 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HelperTests.cs" />
+    <Compile Include="..\BaseDbHelperTest.cs">
+      <Link>BaseDbHelperTest.cs</Link>
+    </Compile>
+    <Compile Include="SqlDbHelperTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

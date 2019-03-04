@@ -9,7 +9,7 @@ namespace SqlTools
 	/// Specifies common methods and properties for working with databases.
 	/// </summary>
 	public interface IDbHelper : IDbHelperTuple, IDbHelperMap
-	{
+    {
 		/// <summary>
 		/// Gets the connection string for the database.
 		/// </summary>
