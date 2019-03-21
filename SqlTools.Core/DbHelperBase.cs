@@ -533,10 +533,14 @@ namespace SqlTools
         public virtual T ExecuteSingle<T>(IDbCommand command) where T : new()
         {
             T result = default(T);
-            using (var data = ExecuteDataTable(command))
+            using (var reader = ExecuteReader(command))
             {
-                if (data.Rows.Count > 0)
-                    result = CreateFromRow<T>(data.Rows[0]);
+                var schema = reader.GetSchemaTable();
+                var propInfos = TypeDescriptor.GetProperties(typeof(T));
+                if (reader.Read())
+                {
+                    result = CreateItem<T>(schema, reader, propInfos);
+                }
             }
             return result;
         }
@@ -566,15 +570,15 @@ namespace SqlTools
         public virtual IEnumerable<T> ExecuteMultiple<T>(IDbCommand command) where T : new()
         {
             List<T> result = null;
-            using (var data = ExecuteDataTable(command))
+            using (var reader = ExecuteReader(command))
             {
-                if (data.Rows.Count > 0)
+                var schema = reader.GetSchemaTable();
+                var propInfos = TypeDescriptor.GetProperties(typeof(T));
+                while (reader.Read())
                 {
-                    foreach (DataRow row in data.Rows)
-                    {
-                        if (result == null) result = new List<T>();
-                        result.Add(CreateFromRow<T>(row));
-                    }
+                    if (result == null) result = new List<T>();
+                    var item = CreateItem<T>(schema, reader, propInfos);
+                    result.Add(item);
                 }
             }
             return result;
@@ -735,15 +739,15 @@ namespace SqlTools
         }
 
 
-        
+
         public async Task<int> ExecuteNonQueryAsync(string commandText)
         {
-            
-                return await ExecuteNonQueryAsync(CreateCommand(commandText)).ConfigureAwait(false);
-            
+
+            return await ExecuteNonQueryAsync(CreateCommand(commandText)).ConfigureAwait(false);
+
         }
 
-        
+
         public async Task<int> ExecuteNonQueryAsync(IDbCommand command)
         {
             using (var cn = GetConnection(InitialConnectionStates.Closed))
@@ -808,14 +812,14 @@ namespace SqlTools
             return result.ToArray();
         }
 
-        public async Task<T> ExecuteSingleAsync<T>(string commandText) where T:new()
+        public async Task<T> ExecuteSingleAsync<T>(string commandText) where T : new()
         {
-            
-                return await ExecuteSingleAsync<T>(CreateCommand(commandText)).ConfigureAwait(false);
-            
+
+            return await ExecuteSingleAsync<T>(CreateCommand(commandText)).ConfigureAwait(false);
+
         }
-        
-        public async Task<T> ExecuteSingleAsync<T>(IDbCommand command) where T:new()
+
+        public async Task<T> ExecuteSingleAsync<T>(IDbCommand command) where T : new()
         {
             var result = default(T);
             using (var cn = GetConnection(InitialConnectionStates.Closed))
@@ -835,16 +839,16 @@ namespace SqlTools
             return result;
         }
 
-        
-        public async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(string commandText) where T:new()
+
+        public async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(string commandText) where T : new()
         {
-            
-                return await ExecuteMultipleAsync<T>(CreateCommand(commandText)).ConfigureAwait(false);
-            
+
+            return await ExecuteMultipleAsync<T>(CreateCommand(commandText)).ConfigureAwait(false);
+
         }
 
-        
-        public async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(IDbCommand command) where T:new()
+
+        public async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(IDbCommand command) where T : new()
         {
             var result = new List<T>();
             using (var cn = GetConnection(InitialConnectionStates.Closed))
@@ -883,11 +887,11 @@ namespace SqlTools
             return result;
         }
 
-        
+
         public async Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(string commandText)
         {
-                return await ExecuteDictionaryAsync<TKey, TValue>(CreateCommand(commandText)).ConfigureAwait(false);
-            
+            return await ExecuteDictionaryAsync<TKey, TValue>(CreateCommand(commandText)).ConfigureAwait(false);
+
         }
 
         private T CreateItem<T>(DataTable schema, IDataReader reader, PropertyDescriptorCollection propInfos) where T : new()
