@@ -1,9 +1,8 @@
 using System;
-using System.Data.SqlClient;
 using System.Data;
+using System.Data.SqlClient;
 
-
-namespace SqlTools.SqlServer
+namespace SqlTools
 {
 	/// <summary>
 	/// Sql Server specific implementation of IDbHelper.

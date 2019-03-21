@@ -7,7 +7,7 @@
     <ProjectGuid>{CC8A5A41-F547-4BC9-BB09-A04E438C7206}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SqlTools.SqlServer</RootNamespace>
+    <RootNamespace>SqlTools</RootNamespace>
     <AssemblyName>SqlTools.SqlServer</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
