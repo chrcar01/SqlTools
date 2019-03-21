@@ -7,7 +7,7 @@
     <ProjectGuid>{56D36641-4D74-4D92-8B3B-F1EF4A12A2B5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SqlTools.Oracle</RootNamespace>
+    <RootNamespace>SqlTools</RootNamespace>
     <AssemblyName>SqlTools.Oracle</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

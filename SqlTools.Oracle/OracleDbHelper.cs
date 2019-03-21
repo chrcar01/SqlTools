@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using Oracle.ManagedDataAccess.Client;
 
-namespace SqlTools.Oracle
+namespace SqlTools
 {
     public class OracleDbHelper : DbHelperBase
     {
@@ -9,7 +9,6 @@ namespace SqlTools.Oracle
         /// Initializes a new instance of the SqlDbHelper class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        /// <param name="defaultCommandTimeoutInSeconds">The default command timeout in seconds. The default for this value is whatever SqlCommand.CommandTimeout returns which is usually 30.</param>
         public OracleDbHelper(string connectionString) : base(connectionString, DbHelperBase.INITIAL_DEFAULT_COMMAND_TIMEOUT_IN_SECONDS)
         {
         }
