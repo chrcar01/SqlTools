@@ -740,7 +740,7 @@ namespace SqlTools
 
 
 
-        public async Task<int> ExecuteNonQueryAsync(string commandText)
+        public virtual async Task<int> ExecuteNonQueryAsync(string commandText)
         {
 
             return await ExecuteNonQueryAsync(CreateCommand(commandText)).ConfigureAwait(false);
@@ -748,7 +748,7 @@ namespace SqlTools
         }
 
 
-        public async Task<int> ExecuteNonQueryAsync(IDbCommand command)
+        public virtual async Task<int> ExecuteNonQueryAsync(IDbCommand command)
         {
             using (var cn = GetConnection(InitialConnectionStates.Closed))
             {
@@ -759,13 +759,13 @@ namespace SqlTools
         }
 
 
-        public async Task<T> ExecuteScalarAsync<T>(string commandText)
+        public virtual async Task<T> ExecuteScalarAsync<T>(string commandText)
         {
 
             return await ExecuteScalarAsync<T>(CreateCommand(commandText)).ConfigureAwait(false);
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(IDbCommand command)
+        public virtual async Task<T> ExecuteScalarAsync<T>(IDbCommand command)
         {
             T result = default(T);
             using (var cn = GetConnection(InitialConnectionStates.Closed))
@@ -780,14 +780,14 @@ namespace SqlTools
         }
 
 
-        public async Task<TItem[]> ExecuteArrayAsync<TItem>(string commandText, ExecuteArrayOptions options = ExecuteArrayOptions.None)
+        public virtual async Task<TItem[]> ExecuteArrayAsync<TItem>(string commandText, ExecuteArrayOptions options = ExecuteArrayOptions.None)
         {
             return await ExecuteArrayAsync<TItem>(CreateCommand(commandText), options).ConfigureAwait(false);
 
         }
 
 
-        public async Task<TItem[]> ExecuteArrayAsync<TItem>(IDbCommand command, ExecuteArrayOptions options = ExecuteArrayOptions.None)
+        public virtual async Task<TItem[]> ExecuteArrayAsync<TItem>(IDbCommand command, ExecuteArrayOptions options = ExecuteArrayOptions.None)
         {
             var result = new List<TItem>();
             using (var cn = GetConnection(InitialConnectionStates.Closed))
@@ -812,14 +812,14 @@ namespace SqlTools
             return result.ToArray();
         }
 
-        public async Task<T> ExecuteSingleAsync<T>(string commandText) where T : new()
+        public virtual async Task<T> ExecuteSingleAsync<T>(string commandText) where T : new()
         {
 
             return await ExecuteSingleAsync<T>(CreateCommand(commandText)).ConfigureAwait(false);
 
         }
 
-        public async Task<T> ExecuteSingleAsync<T>(IDbCommand command) where T : new()
+        public virtual async Task<T> ExecuteSingleAsync<T>(IDbCommand command) where T : new()
         {
             var result = default(T);
             using (var cn = GetConnection(InitialConnectionStates.Closed))
@@ -840,7 +840,7 @@ namespace SqlTools
         }
 
 
-        public async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(string commandText) where T : new()
+        public virtual async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(string commandText) where T : new()
         {
 
             return await ExecuteMultipleAsync<T>(CreateCommand(commandText)).ConfigureAwait(false);
@@ -848,7 +848,7 @@ namespace SqlTools
         }
 
 
-        public async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(IDbCommand command) where T : new()
+        public virtual async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(IDbCommand command) where T : new()
         {
             var result = new List<T>();
             using (var cn = GetConnection(InitialConnectionStates.Closed))
@@ -870,7 +870,7 @@ namespace SqlTools
             return result;
         }
 
-        public async Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(IDbCommand command)
+        public virtual async Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(IDbCommand command)
         {
             var result = new ConcurrentDictionary<TKey, TValue>();
             using (var cmd = PrepCommand(command, GetConnection(InitialConnectionStates.Closed)))
@@ -888,7 +888,7 @@ namespace SqlTools
         }
 
 
-        public async Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(string commandText)
+        public virtual async Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(string commandText)
         {
             return await ExecuteDictionaryAsync<TKey, TValue>(CreateCommand(commandText)).ConfigureAwait(false);
 
