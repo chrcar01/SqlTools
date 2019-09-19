@@ -894,6 +894,53 @@ namespace SqlTools
 
         }
 
+        /// <summary>
+        /// Executes a query and returns a data reader containing the results.
+        /// Implementors should use CommandBehavior.CloseConnection as the default behavior.
+        /// </summary>
+        /// <param name="commandText">The query to execute.</param>
+        /// <returns>A data reader containing the results of executing the query.</returns>
+        public virtual async Task<IDataReader> ExecuteReaderAsync(string commandText)
+        {
+            return await ExecuteReaderAsync(commandText, CommandBehavior.CloseConnection).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Executes a query and returns a data reader containing the results.
+        /// </summary>
+        /// <param name="commandText">The query to execute.</param>
+        /// <param name="behavior">Effects of executing the command on the connection.</param>
+        /// <returns>A data reader containing the results of executing the query.</returns>
+        public virtual async Task<IDataReader> ExecuteReaderAsync(string commandText, CommandBehavior behavior)
+        {
+            return await ExecuteReaderAsync(CreateCommand(commandText), behavior).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Executes a command and returns a data reader containing the results.
+        /// Implementors should use CommandBehavior.CloseConnection as the default behavior.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <returns>A data reader containing the results of executing the command.</returns>
+        public virtual async Task<IDataReader> ExecuteReaderAsync(IDbCommand command)
+        {
+            return await ExecuteReaderAsync(command, CommandBehavior.CloseConnection).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Executes a command and returns a data reader containing the results.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="behavior">Effects of executing the command on the connection.</param>
+        /// <returns>A data reader containing the results of executing the command.</returns>
+        public virtual async Task<IDataReader> ExecuteReaderAsync(IDbCommand command, CommandBehavior behavior)
+        {
+            var cn = GetConnection(InitialConnectionStates.Closed);
+            PrepCommand(command, cn);
+            await cn.OpenAsync().ConfigureAwait(false);
+            return await command.ExecuteReaderAsync(behavior).ConfigureAwait(false);
+        }
+
         private T CreateItem<T>(DataTable schema, IDataReader reader, PropertyDescriptorCollection propInfos) where T : new()
         {
             var item = new T();

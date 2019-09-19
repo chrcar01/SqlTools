@@ -296,5 +296,34 @@ namespace SqlTools
         /// <param name="commandText">The query to execute.</param>
         /// <returns></returns>
         Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(string commandText);
-	}
+
+        /// <summary>
+        /// Executes a query and returns a data reader containing the results.
+        /// Implementors should use CommandBehavior.CloseConnection as the default behavior.
+        /// </summary>
+        /// <param name="commandText">The query to execute.</param>
+        /// <returns>A data reader containing the results of executing the query.</returns>
+        Task<IDataReader> ExecuteReaderAsync(string commandText);
+        /// <summary>
+        /// Executes a query and returns a data reader containing the results.
+        /// </summary>
+        /// <param name="commandText">The query to execute.</param>
+        /// <param name="behavior">Effects of executing the command on the connection.</param>
+        /// <returns>A data reader containing the results of executing the query.</returns>
+        Task<IDataReader> ExecuteReaderAsync(string commandText, CommandBehavior behavior);
+        /// <summary>
+        /// Executes a command and returns a data reader containing the results.
+        /// Implementors should use CommandBehavior.CloseConnection as the default behavior.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <returns>A data reader containing the results of executing the command.</returns>
+        Task<IDataReader> ExecuteReaderAsync(IDbCommand command);
+        /// <summary>
+        /// Executes a command and returns a data reader containing the results.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="behavior">Effects of executing the command on the connection.</param>
+        /// <returns>A data reader containing the results of executing the command.</returns>
+        Task<IDataReader> ExecuteReaderAsync(IDbCommand command, CommandBehavior behavior);
+    }
 }
