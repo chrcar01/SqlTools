@@ -16,7 +16,7 @@ It executes sql, does some simple type mapping, and that's it.  It's kept simple
 
 I have a sample database I use for testing this stuff out.  Below is a diagram of [the sample database](https://github.com/chrcar01/SqlTools/blob/master/SqlTools.sql).  
 
-![Sample Database Diagram](https://github.com/chrcar01/SqlTools/raw/master/dbdiagram.png)
+![Sample Database Diagram](dbdiagram.png)
 
 ## Retrieve the values of a single column as an array
 
