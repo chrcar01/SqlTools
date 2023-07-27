@@ -138,24 +138,18 @@ namespace SqlTools
 		/// <param name="commandText">The query to execute.</param>
 		/// <returns></returns>
 		Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(string commandText);
+		
 		/// <summary>
-		/// Changes the connection.
-		/// </summary>
-		/// <param name="connectionString">The connection string.</param>
-		void ChangeConnection(string connectionString);
-		/// <summary>
-		/// Occurs when [connection changed].
-		/// </summary>
-		event EventHandler<ConnectionChangedEventArgs> ConnectionChanged;
-		/// <summary>
-		/// Occurs when [connection state changed].
+		/// Occurs when connection state changed.
 		/// </summary>
 		event EventHandler<ConnectionStateChangedEventArgs> ConnectionStateChanged;
-		/// <summary>
-		/// Occurs when [connection created].
+		
+        /// <summary>
+		/// Occurs when connection created.
 		/// </summary>
 		event EventHandler ConnectionCreated;
-		/// <summary>
+		
+        /// <summary>
 		/// Gets or sets the default command timeout in seconds. 
 		/// The default value for this property is the same as the default for SqlCommand's CommandTimeout property.
 		/// </summary>

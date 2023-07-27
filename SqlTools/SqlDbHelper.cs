@@ -3,14 +3,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 
 namespace SqlTools
 {
     /// <summary>
-    /// Implementation of IDbhelper for SqlServer databases.
+    /// Implementation of <see cref="IDbHelper"/>.
     /// </summary>
-    public abstract class DbHelperBase : IDbHelper
+    public sealed class SqlDbHelper : IDbHelper
     {
         /// <summary>
         /// The initial value[Int32.MinValue] for DefaultCommandTimeoutInSeconds.
@@ -26,14 +27,20 @@ namespace SqlTools
         /// Creates a provider specific implementation of IDbCommand.
         /// </summary>
         /// <returns></returns>
-        protected abstract IDbCommand CreateCommand();
+        private IDbCommand CreateCommand()
+        {
+            return _connectionFactory().CreateCommand();
+        }
 
 
         /// <summary>
         /// Creates a provider specific implementation of IDbConnection.
         /// </summary>
         /// <returns></returns>
-        protected abstract IDbConnection CreateConnection();
+        private IDbConnection CreateConnection()
+        {
+            return _connectionFactory();
+        }
 
 
         /// <summary>
@@ -41,18 +48,21 @@ namespace SqlTools
         /// </summary>
         /// <param name="command">The command used by the IDbDataAdapter.</param>
         /// <returns></returns>
-        protected abstract IDbDataAdapter CreateDataAdapter(IDbCommand command);
-
-
-        /// <summary>
-		/// Initializes a new instance of the SqlDbHelper class.
-		/// </summary>
-		/// <param name="connectionString">The connection string.</param>
-		/// <param name="defaultCommandTimeoutInSeconds">The default command timeout in seconds. The default for this value is whatever SqlCommand.CommandTimeout returns which is usually 30.</param>
-		public DbHelperBase(string connectionString, int defaultCommandTimeoutInSeconds)
+        private IDbDataAdapter CreateDataAdapter(IDbCommand command)
         {
-            _connectionString = connectionString;
-            _defaultCommandTimeoutInSeconds = defaultCommandTimeoutInSeconds;
+            throw new NotSupportedException();
+        }
+
+        private readonly Func<DbConnection> _connectionFactory;
+        /// <summary>
+		/// Initializes a new instance of the <see cref="SqlDbHelper"/> class.
+		/// </summary>
+        /// <param name="connectionFactory">Delegate to use when creating new <see cref="DbConnection"/> instances.</param>
+		/// <param name="defaultCommandTimeoutInSeconds">The default command timeout in seconds. </param>
+		public SqlDbHelper(Func<DbConnection> connectionFactory, int? defaultCommandTimeoutInSeconds = null)
+        {
+            _connectionFactory = connectionFactory;
+            _defaultCommandTimeoutInSeconds = defaultCommandTimeoutInSeconds ?? INITIAL_DEFAULT_COMMAND_TIMEOUT_IN_SECONDS;
         }
 
 
@@ -91,17 +101,10 @@ namespace SqlTools
             }
         }
 
-        private string _connectionString;
         /// <summary>
         /// Gets the connection string to the database.
         /// </summary>
-        public string ConnectionString
-        {
-            get
-            {
-                return _connectionString;
-            }
-        }
+        public string ConnectionString => _connectionFactory().ConnectionString;
 
         /// <summary>
         /// Opens a connection to the database.
@@ -159,7 +162,7 @@ namespace SqlTools
         /// <typeparam name="T">The type of the data returned.</typeparam>
         /// <param name="commandText">The query to execute.</param>
         /// <returns>The first column of the first row of the result of executeing the query.</returns>
-        public virtual T ExecuteScalar<T>(string commandText)
+        public T ExecuteScalar<T>(string commandText)
         {
             return this.ExecuteScalar<T>(CreateCommand(commandText));
         }
@@ -172,7 +175,7 @@ namespace SqlTools
         /// <typeparam name="T">The type of the data returned.</typeparam>
         /// <param name="command">The command to execute.</param>
         /// <returns>The first colunm of the first row of the result of executing the command.</returns>
-        public virtual T ExecuteScalar<T>(IDbCommand command)
+        public T ExecuteScalar<T>(IDbCommand command)
         {
             T result = default(T);
             using (var cn = GetConnection())
@@ -193,7 +196,7 @@ namespace SqlTools
         /// <returns>
         /// An array of all of the values of the first column of all of the rows in the resultset.
         /// </returns>
-        public virtual TItem[] ExecuteArray<TItem>(string commandText)
+        public TItem[] ExecuteArray<TItem>(string commandText)
         {
             ExecuteArrayOptions options = ExecuteArrayOptions.None;
             return ExecuteArray<TItem>(commandText, options);
@@ -207,7 +210,7 @@ namespace SqlTools
         /// <returns>
         /// An array of all of the values of the first column of all of the rows in the resultset.
         /// </returns>
-        public virtual TItem[] ExecuteArray<TItem>(string commandText, ExecuteArrayOptions options)
+        public TItem[] ExecuteArray<TItem>(string commandText, ExecuteArrayOptions options)
         {
             return this.ExecuteArray<TItem>(CreateCommand(commandText), options);
         }
@@ -220,7 +223,7 @@ namespace SqlTools
         /// <returns>
         /// An array of all of the values of the first column of all of the rows in the resultset.
         /// </returns>
-        public virtual TItem[] ExecuteArray<TItem>(IDbCommand command)
+        public TItem[] ExecuteArray<TItem>(IDbCommand command)
         {
             ExecuteArrayOptions options = ExecuteArrayOptions.None;
             return ExecuteArray<TItem>(command, options);
@@ -234,7 +237,7 @@ namespace SqlTools
         /// <returns>
         /// An array of all of the values of the first column of all of the rows in the resultset.
         /// </returns>
-        public virtual TItem[] ExecuteArray<TItem>(IDbCommand command, ExecuteArrayOptions options)
+        public TItem[] ExecuteArray<TItem>(IDbCommand command, ExecuteArrayOptions options)
         {
             var result = new List<TItem>();
             using (var reader = this.ExecuteReader(command))
@@ -257,7 +260,7 @@ namespace SqlTools
         /// </summary>
         /// <param name="commandText">The query to execute.</param>
         /// <returns>The number of rows affected.</returns>
-        public virtual int ExecuteNonQuery(string commandText)
+        public int ExecuteNonQuery(string commandText)
         {
             return this.ExecuteNonQuery(CreateCommand(commandText));
         }
@@ -267,7 +270,7 @@ namespace SqlTools
         /// </summary>
         /// <param name="command">The command to execute.</param>
         /// <returns>The number of rows affected.</returns>
-        public virtual int ExecuteNonQuery(IDbCommand command)
+        public int ExecuteNonQuery(IDbCommand command)
         {
             using (var cn = this.GetConnection())
             {
@@ -282,7 +285,7 @@ namespace SqlTools
         /// </summary>
         /// <param name="commandText">The query to execute.</param>
         /// <returns>DataTable containing the results of executing the query.</returns>
-        public virtual DataTable ExecuteDataTable(string commandText)
+        public DataTable ExecuteDataTable(string commandText)
         {
             return this.ExecuteDataTable(CreateCommand(commandText));
         }
@@ -292,7 +295,7 @@ namespace SqlTools
         /// </summary>
         /// <param name="command">The command to execute.</param>
         /// <returns>DataTable containing the results of executing the command.</returns>
-        public virtual DataTable ExecuteDataTable(IDbCommand command)
+        public DataTable ExecuteDataTable(IDbCommand command)
         {
             var result = new DataSet();
             using (var cn = this.GetConnection())
@@ -312,7 +315,7 @@ namespace SqlTools
         /// <returns>
         /// A data reader containing the results of executing the query.
         /// </returns>
-        public virtual IDataReader ExecuteReader(string commandText)
+        public IDataReader ExecuteReader(string commandText)
         {
             return this.ExecuteReader(CreateCommand(commandText), CommandBehavior.CloseConnection);
         }
@@ -325,7 +328,7 @@ namespace SqlTools
         /// <returns>
         /// A SqlDataReader containing the resultset.
         /// </returns>
-        public virtual IDataReader ExecuteReader(string commandText, CommandBehavior behavior)
+        public IDataReader ExecuteReader(string commandText, CommandBehavior behavior)
         {
             return this.ExecuteReader(CreateCommand(commandText), behavior);
         }
@@ -338,7 +341,7 @@ namespace SqlTools
         /// <returns>
         /// A data reader containing the results of executing the command.
         /// </returns>
-        public virtual IDataReader ExecuteReader(IDbCommand command)
+        public IDataReader ExecuteReader(IDbCommand command)
         {
             return ExecuteReader(command, CommandBehavior.CloseConnection);
         }
@@ -351,7 +354,7 @@ namespace SqlTools
         /// <returns>
         /// A data reader containing the results of executing the command.
         /// </returns>
-        public virtual IDataReader ExecuteReader(IDbCommand command, CommandBehavior behavior)
+        public IDataReader ExecuteReader(IDbCommand command, CommandBehavior behavior)
         {
             PrepCommand(command, GetConnection());
             return command.ExecuteReader(behavior);
@@ -416,7 +419,7 @@ namespace SqlTools
         /// <typeparam name="TFirst">The type of the first.</typeparam>
         /// <param name="commandText">The command text.</param>
         /// <returns></returns>
-        public virtual IEnumerable<Tuple<TFirst>> ExecuteTuple<TFirst>(string commandText)
+        public IEnumerable<Tuple<TFirst>> ExecuteTuple<TFirst>(string commandText)
         {
             return ExecuteTuple<TFirst>(CreateCommand(commandText));
         }
@@ -427,7 +430,7 @@ namespace SqlTools
         /// <typeparam name="TFirst">The type of the first.</typeparam>
         /// <param name="command">The command.</param>
         /// <returns></returns>
-        public virtual IEnumerable<Tuple<TFirst>> ExecuteTuple<TFirst>(IDbCommand command)
+        public IEnumerable<Tuple<TFirst>> ExecuteTuple<TFirst>(IDbCommand command)
         {
             List<Tuple<TFirst>> tuples = new List<Tuple<TFirst>>();
             using (IDataReader reader = ExecuteReader(command))
@@ -447,7 +450,7 @@ namespace SqlTools
         /// <typeparam name="TSecond">The type of the second.</typeparam>
         /// <param name="commandText">The command text.</param>
         /// <returns></returns>
-        public virtual IEnumerable<Tuple<TFirst, TSecond>> ExecuteTuple<TFirst, TSecond>(string commandText)
+        public IEnumerable<Tuple<TFirst, TSecond>> ExecuteTuple<TFirst, TSecond>(string commandText)
         {
             return ExecuteTuple<TFirst, TSecond>(CreateCommand(commandText));
         }
@@ -459,7 +462,7 @@ namespace SqlTools
         /// <typeparam name="TSecond">The type of the second.</typeparam>
         /// <param name="command">The command.</param>
         /// <returns></returns>
-        public virtual IEnumerable<Tuple<TFirst, TSecond>> ExecuteTuple<TFirst, TSecond>(IDbCommand command)
+        public IEnumerable<Tuple<TFirst, TSecond>> ExecuteTuple<TFirst, TSecond>(IDbCommand command)
         {
             List<Tuple<TFirst, TSecond>> tuples = new List<Tuple<TFirst, TSecond>>();
             using (IDataReader reader = ExecuteReader(command))
@@ -481,7 +484,7 @@ namespace SqlTools
         /// <typeparam name="TThird">The type of the third.</typeparam>
         /// <param name="commandText">The command text.</param>
         /// <returns></returns>
-        public virtual IEnumerable<Tuple<TFirst, TSecond, TThird>> ExecuteTuple<TFirst, TSecond, TThird>(string commandText)
+        public IEnumerable<Tuple<TFirst, TSecond, TThird>> ExecuteTuple<TFirst, TSecond, TThird>(string commandText)
         {
             return ExecuteTuple<TFirst, TSecond, TThird>(CreateCommand(commandText));
         }
@@ -494,7 +497,7 @@ namespace SqlTools
         /// <typeparam name="TThird">The type of the third.</typeparam>
         /// <param name="command">The command.</param>
         /// <returns></returns>
-        public virtual IEnumerable<Tuple<TFirst, TSecond, TThird>> ExecuteTuple<TFirst, TSecond, TThird>(IDbCommand command)
+        public IEnumerable<Tuple<TFirst, TSecond, TThird>> ExecuteTuple<TFirst, TSecond, TThird>(IDbCommand command)
         {
             var tuples = new List<Tuple<TFirst, TSecond, TThird>>();
             using (var reader = ExecuteReader(command))
@@ -517,7 +520,7 @@ namespace SqlTools
         /// <typeparam name="T">Represents the type that will be mapped to the first row of the resultset.</typeparam>
         /// <param name="commandText">The sql command to execute.</param>
         /// <returns></returns>
-        public virtual T ExecuteSingle<T>(string commandText) where T : new()
+        public T ExecuteSingle<T>(string commandText) where T : new()
         {
             return ExecuteSingle<T>(CreateCommand(commandText));
         }
@@ -530,7 +533,7 @@ namespace SqlTools
         /// <typeparam name="T">Represents the type that will be mapped to the first row of the resultset.</typeparam>
         /// <param name="command">The command to execute.</param>
         /// <returns></returns>
-        public virtual T ExecuteSingle<T>(IDbCommand command) where T : new()
+        public T ExecuteSingle<T>(IDbCommand command) where T : new()
         {
             T result = default(T);
             using (var reader = ExecuteReader(command))
@@ -554,7 +557,7 @@ namespace SqlTools
         /// <typeparam name="T">Represents the type that will be be mapped to each row in the resultset.</typeparam>
         /// <param name="commandText">The sql command execute.</param>
         /// <returns></returns>
-        public virtual IEnumerable<T> ExecuteMultiple<T>(string commandText) where T : new()
+        public IEnumerable<T> ExecuteMultiple<T>(string commandText) where T : new()
         {
             return ExecuteMultiple<T>(CreateCommand(commandText));
         }
@@ -567,7 +570,7 @@ namespace SqlTools
         /// <typeparam name="T">Represents the type that will be be mapped to each row in the resultset.</typeparam>
         /// <param name="command">The command to execute.</param>
         /// <returns></returns>
-        public virtual IEnumerable<T> ExecuteMultiple<T>(IDbCommand command) where T : new()
+        public IEnumerable<T> ExecuteMultiple<T>(IDbCommand command) where T : new()
         {
             List<T> result = null;
             using (var reader = ExecuteReader(command))
@@ -593,7 +596,7 @@ namespace SqlTools
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="command">The command to execute.</param>
         /// <returns></returns>
-        public virtual Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(IDbCommand command)
+        public Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(IDbCommand command)
         {
             var result = new Dictionary<TKey, TValue>();
             using (IDataReader reader = ExecuteReader(command))
@@ -615,7 +618,7 @@ namespace SqlTools
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="commandText">The query to execute.</param>
         /// <returns></returns>
-        public virtual Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(string commandText)
+        public Dictionary<TKey, TValue> ExecuteDictionary<TKey, TValue>(string commandText)
         {
             return ExecuteDictionary<TKey, TValue>(CreateCommand(commandText));
         }
@@ -634,59 +637,24 @@ namespace SqlTools
 
             return result;
         }
-
+        
         /// <summary>
-        /// Changes the connection.
-        /// </summary>
-        /// <param name="connectionString">The connection string.</param>
-        public void ChangeConnection(string connectionString)
-        {
-            if (String.IsNullOrEmpty(connectionString))
-                throw new ArgumentNullException("connectionString is null or empty.", "connectionString");
-
-            _connectionString = connectionString;
-        }
-        /// <summary>
-        /// Occurs when [connection state changed].
+        /// Occurs when connection state changed.
         /// </summary>
         public event EventHandler<ConnectionStateChangedEventArgs> ConnectionStateChanged;
-        /// <summary>
-        /// Raises the connection state changed event.
-        /// </summary>
-        /// <param name="state">The state.</param>
-        protected virtual void RaiseConnectionStateChanged(ConnectionStates state)
+        
+        private void RaiseConnectionStateChanged(ConnectionStates state)
         {
             if (ConnectionStateChanged == null) return;
             ConnectionStateChanged(this, new ConnectionStateChangedEventArgs(state));
         }
-        /// <summary>
-        /// Occurs when [connection changed].
-        /// </summary>
-        public event EventHandler<ConnectionChangedEventArgs> ConnectionChanged;
-
-        /// <summary>
-        /// Raises the connection changed event.
-        /// </summary>
-        /// <param name="oldConnectionString">The old connection string.</param>
-        /// <param name="newConnectionString">The new connection string.</param>
-        protected virtual void RaiseConnectionChanged(string oldConnectionString, string newConnectionString)
-        {
-            if (ConnectionChanged == null) return;
-            ConnectionChanged(this, new ConnectionChangedEventArgs(oldConnectionString, newConnectionString));
-        }
-
-        /// <summary>
-        /// Occurs when [connection created].
-        /// </summary>
+        
+        /// <inheritdoc cref="ConnectionCreated"/>
         public event EventHandler ConnectionCreated;
 
-        /// <summary>
-        /// Raises the connection created event.
-        /// </summary>
-        protected virtual void RaiseConnectionCreated()
+        private void RaiseConnectionCreated()
         {
-            if (ConnectionCreated == null) return;
-            ConnectionCreated(this, new EventArgs());
+            ConnectionCreated?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -695,7 +663,7 @@ namespace SqlTools
         /// </summary>
         /// <param name="sql">The SQL.</param>
         /// <returns></returns>
-        public virtual dynamic ExecuteDynamic(string sql)
+        public dynamic ExecuteDynamic(string sql)
         {
             return ExecuteDynamic(CreateCommand(sql));
         }
@@ -705,7 +673,7 @@ namespace SqlTools
         /// </summary>
         /// <param name="command">The command.</param>
         /// <returns></returns>
-        public virtual dynamic ExecuteDynamic(IDbCommand command)
+        public dynamic ExecuteDynamic(IDbCommand command)
         {
             var data = ExecuteDataTable(command);
             return new DynamicResult(data.Columns, data.Rows[0]);
@@ -715,7 +683,7 @@ namespace SqlTools
         /// </summary>
         /// <param name="sql">The SQL.</param>
         /// <returns></returns>
-        public virtual IEnumerable<dynamic> ExecuteDynamics(string sql)
+        public IEnumerable<dynamic> ExecuteDynamics(string sql)
         {
             return ExecuteDynamics(CreateCommand(sql));
         }
@@ -724,7 +692,7 @@ namespace SqlTools
         /// </summary>
         /// <param name="command">The command.</param>
         /// <returns></returns>
-        public virtual IEnumerable<dynamic> ExecuteDynamics(IDbCommand command)
+        public IEnumerable<dynamic> ExecuteDynamics(IDbCommand command)
         {
             var result = new List<dynamic>();
             var data = ExecuteDataTable(command);
@@ -738,17 +706,14 @@ namespace SqlTools
             return result;
         }
 
-
-
-        public virtual async Task<int> ExecuteNonQueryAsync(string commandText)
+        /// <inheritdoc cref="ExecuteNonQueryAsync(string)"/>
+        public async Task<int> ExecuteNonQueryAsync(string commandText)
         {
-
             return await ExecuteNonQueryAsync(CreateCommand(commandText)).ConfigureAwait(false);
-
         }
 
-
-        public virtual async Task<int> ExecuteNonQueryAsync(IDbCommand command)
+        /// <inheritdoc cref="ExecuteNonQueryAsync(IDbCommand)"/>
+        public async Task<int> ExecuteNonQueryAsync(IDbCommand command)
         {
             using (var cn = GetConnection(InitialConnectionStates.Closed))
             {
@@ -758,14 +723,14 @@ namespace SqlTools
             }
         }
 
-
-        public virtual async Task<T> ExecuteScalarAsync<T>(string commandText)
+        /// <inheritdoc cref="ExecuteScalarAsync{T}(string)"/>
+        public async Task<T> ExecuteScalarAsync<T>(string commandText)
         {
-
             return await ExecuteScalarAsync<T>(CreateCommand(commandText)).ConfigureAwait(false);
         }
 
-        public virtual async Task<T> ExecuteScalarAsync<T>(IDbCommand command)
+        /// <inheritdoc cref="ExecuteScalarAsync{T}(IDbCommand)"/>
+        public async Task<T> ExecuteScalarAsync<T>(IDbCommand command)
         {
             T result = default(T);
             using (var cn = GetConnection(InitialConnectionStates.Closed))
@@ -778,16 +743,15 @@ namespace SqlTools
             }
             return result;
         }
-
-
-        public virtual async Task<TItem[]> ExecuteArrayAsync<TItem>(string commandText, ExecuteArrayOptions options = ExecuteArrayOptions.None)
+        
+        /// <inheritdoc cref="ExecuteArrayAsync{TItem}(string,SqlTools.ExecuteArrayOptions)"/>
+        public async Task<TItem[]> ExecuteArrayAsync<TItem>(string commandText, ExecuteArrayOptions options = ExecuteArrayOptions.None)
         {
             return await ExecuteArrayAsync<TItem>(CreateCommand(commandText), options).ConfigureAwait(false);
-
         }
 
-
-        public virtual async Task<TItem[]> ExecuteArrayAsync<TItem>(IDbCommand command, ExecuteArrayOptions options = ExecuteArrayOptions.None)
+        /// <inheritdoc cref="ExecuteArrayAsync{TItem}(string,SqlTools.ExecuteArrayOptions)"/>
+        public async Task<TItem[]> ExecuteArrayAsync<TItem>(IDbCommand command, ExecuteArrayOptions options = ExecuteArrayOptions.None)
         {
             var result = new List<TItem>();
             using (var cn = GetConnection(InitialConnectionStates.Closed))
@@ -812,14 +776,14 @@ namespace SqlTools
             return result.ToArray();
         }
 
-        public virtual async Task<T> ExecuteSingleAsync<T>(string commandText) where T : new()
+        /// <inheritdoc cref="ExecuteSingleAsync{T}(string)"/>
+        public async Task<T> ExecuteSingleAsync<T>(string commandText) where T : new()
         {
-
             return await ExecuteSingleAsync<T>(CreateCommand(commandText)).ConfigureAwait(false);
-
         }
 
-        public virtual async Task<T> ExecuteSingleAsync<T>(IDbCommand command) where T : new()
+        /// <inheritdoc cref="ExecuteSingleAsync{T}(IDbCommand)"/>
+        public async Task<T> ExecuteSingleAsync<T>(IDbCommand command) where T : new()
         {
             var result = default(T);
             using (var cn = GetConnection(InitialConnectionStates.Closed))
@@ -839,16 +803,14 @@ namespace SqlTools
             return result;
         }
 
-
-        public virtual async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(string commandText) where T : new()
+        /// <inheritdoc cref="ExecuteMultipleAsync{T}(string)"/>
+        public async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(string commandText) where T : new()
         {
-
             return await ExecuteMultipleAsync<T>(CreateCommand(commandText)).ConfigureAwait(false);
-
         }
 
-
-        public virtual async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(IDbCommand command) where T : new()
+        /// <inheritdoc cref="ExecuteMultipleAsync{T}(IDbCommand)"/>
+        public async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(IDbCommand command) where T : new()
         {
             var result = new List<T>();
             using (var cn = GetConnection(InitialConnectionStates.Closed))
@@ -870,7 +832,8 @@ namespace SqlTools
             return result;
         }
 
-        public virtual async Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(IDbCommand command)
+        /// <inheritdoc cref="ExecuteDictionaryAsync{TKey,TValue}(System.Data.IDbCommand)"/>
+        public async Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(IDbCommand command)
         {
             var result = new ConcurrentDictionary<TKey, TValue>();
             using (var cmd = PrepCommand(command, GetConnection(InitialConnectionStates.Closed)))
@@ -886,12 +849,11 @@ namespace SqlTools
             }
             return result;
         }
-
-
-        public virtual async Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(string commandText)
+        
+        /// <inheritdoc cref="ExecuteDictionaryAsync{TKey,TValue}(string)"/>
+        public async Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(string commandText)
         {
             return await ExecuteDictionaryAsync<TKey, TValue>(CreateCommand(commandText)).ConfigureAwait(false);
-
         }
 
         /// <summary>
@@ -900,7 +862,7 @@ namespace SqlTools
         /// </summary>
         /// <param name="commandText">The query to execute.</param>
         /// <returns>A data reader containing the results of executing the query.</returns>
-        public virtual async Task<IDataReader> ExecuteReaderAsync(string commandText)
+        public async Task<IDataReader> ExecuteReaderAsync(string commandText)
         {
             return await ExecuteReaderAsync(commandText, CommandBehavior.CloseConnection).ConfigureAwait(false);
         }
@@ -911,7 +873,7 @@ namespace SqlTools
         /// <param name="commandText">The query to execute.</param>
         /// <param name="behavior">Effects of executing the command on the connection.</param>
         /// <returns>A data reader containing the results of executing the query.</returns>
-        public virtual async Task<IDataReader> ExecuteReaderAsync(string commandText, CommandBehavior behavior)
+        public async Task<IDataReader> ExecuteReaderAsync(string commandText, CommandBehavior behavior)
         {
             return await ExecuteReaderAsync(CreateCommand(commandText), behavior).ConfigureAwait(false);
         }
@@ -922,7 +884,7 @@ namespace SqlTools
         /// </summary>
         /// <param name="command">The command to execute.</param>
         /// <returns>A data reader containing the results of executing the command.</returns>
-        public virtual async Task<IDataReader> ExecuteReaderAsync(IDbCommand command)
+        public async Task<IDataReader> ExecuteReaderAsync(IDbCommand command)
         {
             return await ExecuteReaderAsync(command, CommandBehavior.CloseConnection).ConfigureAwait(false);
         }
@@ -933,7 +895,7 @@ namespace SqlTools
         /// <param name="command">The command to execute.</param>
         /// <param name="behavior">Effects of executing the command on the connection.</param>
         /// <returns>A data reader containing the results of executing the command.</returns>
-        public virtual async Task<IDataReader> ExecuteReaderAsync(IDbCommand command, CommandBehavior behavior)
+        public async Task<IDataReader> ExecuteReaderAsync(IDbCommand command, CommandBehavior behavior)
         {
             var cn = GetConnection(InitialConnectionStates.Closed);
             PrepCommand(command, cn);

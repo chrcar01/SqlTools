@@ -16,6 +16,9 @@ using System.Threading.Tasks;
 
 namespace System.Data
 {
+    /// <summary>
+    /// https://github.com/ttrider/IDbConnection-Async/blob/master/IDbConnection-Async.Core/AsyncAdapter.cs
+    /// </summary>
     public static class AsyncAdapter
     {
         private static readonly ConcurrentDictionary<Type, ConnectionAdapter> ConnectionAdapters =
@@ -311,7 +314,12 @@ namespace System.Data
             }
         }
 
-
+        /// <summary>
+        /// Opens a database connection asynchronously.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task OpenAsync(this IDbConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
@@ -322,6 +330,13 @@ namespace System.Data
                     .OpenAsync(connection);
         }
 
+        /// <summary>
+        /// Opens a database connection asynchronously.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task OpenAsync(this IDbConnection connection, CancellationToken token)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
@@ -332,7 +347,12 @@ namespace System.Data
                     .OpenAsyncToken(connection, token);
         }
 
-
+        /// <summary>
+        /// Executes a database command asynchronously.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<int> ExecuteNonQueryAsync(this IDbCommand command)
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
@@ -343,6 +363,13 @@ namespace System.Data
                     .ExecuteNonQueryAsync(command);
         }
 
+        /// <summary>
+        /// Executes a database command asynchronously.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<int> ExecuteNonQueryAsync(this IDbCommand command, CancellationToken token)
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
@@ -353,6 +380,12 @@ namespace System.Data
                     .ExecuteNonQueryAsyncToken(command, token);
         }
 
+        /// <summary>
+        /// Executes a database command asynchronously.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<IDataReader> ExecuteReaderAsync(this IDbCommand command)
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
@@ -363,6 +396,13 @@ namespace System.Data
                     .ExecuteReaderAsync(command);
         }
 
+        /// <summary>
+        /// Executes a database command asynchronously.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<IDataReader> ExecuteReaderAsync(this IDbCommand command, CancellationToken token)
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
@@ -373,6 +413,13 @@ namespace System.Data
                     .ExecuteReaderAsyncToken(command, token);
         }
 
+        /// <summary>
+        /// Executes a database command asynchronously.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="commandBehavior"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<IDataReader> ExecuteReaderAsync(this IDbCommand command, CommandBehavior commandBehavior)
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
@@ -383,6 +430,14 @@ namespace System.Data
                     .ExecuteReaderAsyncBehavior(command, commandBehavior);
         }
 
+        /// <summary>
+        /// Executes a database command asynchronously.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="commandBehavior"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<IDataReader> ExecuteReaderAsync(this IDbCommand command, CommandBehavior commandBehavior,
             CancellationToken token)
         {
@@ -394,6 +449,12 @@ namespace System.Data
                     .ExecuteReaderAsyncBehaviorToken(command, commandBehavior, token);
         }
 
+        /// <summary>
+        /// Executes a database command asynchronously.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<Object> ExecuteScalarAsync(this IDbCommand command)
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
@@ -404,6 +465,13 @@ namespace System.Data
                     .ExecuteScalarAsync(command);
         }
 
+        /// <summary>
+        /// Executes a database command asynchronously.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<Object> ExecuteScalarAsync(this IDbCommand command, CancellationToken token)
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
@@ -415,7 +483,14 @@ namespace System.Data
         }
 
 
-
+        /// <summary>
+        /// Asynchronously retrieves the strongly typed value of the specified field from the data reader.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="reader"></param>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<T> GetFieldValueAsync<T>(this IDataReader reader, int ordinal)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
@@ -425,6 +500,16 @@ namespace System.Data
                 type => new DataReaderAdapter(type))
                     .DoGetFieldValueAsync<T>(reader, ordinal);
         }
+
+        /// <summary>
+        /// Asynchronously retrieves the strongly typed value of the specified field from the data reader.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="reader"></param>
+        /// <param name="ordinal"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<T> GetFieldValueAsync<T>(this IDataReader reader, int ordinal, CancellationToken token)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
@@ -434,6 +519,14 @@ namespace System.Data
                 type => new DataReaderAdapter(type))
                     .DoGetFieldValueAsync<T>(reader, ordinal, token);
         }
+
+        /// <summary>
+        /// Asynchronously checks whether the specified field is set to null.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<bool> IsDBNullAsync(this IDataReader reader, int ordinal)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
@@ -443,6 +536,15 @@ namespace System.Data
                 type => new DataReaderAdapter(type))
                     .IsDBNullAsync(reader, ordinal);
         }
+
+        /// <summary>
+        /// Asynchronously checks whether the specified field is set to null.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="ordinal"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<bool> IsDBNullAsync(this IDataReader reader, int ordinal, CancellationToken token)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
@@ -452,6 +554,13 @@ namespace System.Data
                 type => new DataReaderAdapter(type))
                     .IsDBNullAsyncToken(reader, ordinal, token);
         }
+
+        /// <summary>
+        /// Asynchronously advances the data reader to the next result, when reading the results of batch SQL statements.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<bool> NextResultAsync(this IDataReader reader)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
@@ -461,6 +570,14 @@ namespace System.Data
                 type => new DataReaderAdapter(type))
                     .NextResultAsync(reader);
         }
+
+        /// <summary>
+        /// Asynchronously advances the data reader to the next result, when reading the results of batch SQL statements.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<bool> NextResultAsync(this IDataReader reader, CancellationToken token)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
@@ -470,6 +587,13 @@ namespace System.Data
                 type => new DataReaderAdapter(type))
                     .NextResultAsyncToken(reader, token);
         }
+
+        /// <summary>
+        /// Asynchronously reads a stream of rows from the data reader.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<bool> ReadAsync(this IDataReader reader)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
@@ -479,6 +603,14 @@ namespace System.Data
                 type => new DataReaderAdapter(type))
                     .ReadAsync(reader);
         }
+
+        /// <summary>
+        /// Asynchronously reads a stream of rows from the data reader.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static Task<bool> ReadAsync(this IDataReader reader, CancellationToken token)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
