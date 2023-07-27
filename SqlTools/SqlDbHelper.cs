@@ -106,28 +106,28 @@ namespace SqlTools
         /// </summary>
         public string ConnectionString => _connectionFactory().ConnectionString;
 
-        /// <summary>
-        /// Opens a connection to the database.
-        /// </summary>
-        /// <returns>An open connection to the database.</returns>
-        public IDbConnection GetConnection()
-        {
-            return this.GetConnection(InitialConnectionStates.Open);
-        }
+        /// <inheritdoc cref="GetConnection()"/> 
+        public IDbConnection GetConnection() => GetConnection(InitialConnectionStates.Open);
 
+        /// <inheritdoc cref="GetConnection(InitialConnectionStates)"/> 
+        public IDbConnection GetConnection(InitialConnectionStates initialState) => GetDbConnection(initialState);
 
-        /// <summary>
-        /// Gets a connection to the database.
-        /// </summary>
-        /// <param name="initialState">Indicates the state of the connection returned.</param>
-        /// <returns>A connection to the database, either open or closed.</returns>
-        public IDbConnection GetConnection(InitialConnectionStates initialState)
+        private DbConnection GetDbConnection(InitialConnectionStates initialState)
         {
-            IDbConnection result = CreateConnection();
+            var result = _connectionFactory();
             RaiseConnectionCreated();
-            result.ConnectionString = ConnectionString;
             if (initialState == InitialConnectionStates.Open)
                 result.Open();
+
+            return result;
+        }
+
+        private async Task<DbConnection> GetDbConnectionAsync(InitialConnectionStates initialState = InitialConnectionStates.Closed)
+        {
+            var result = _connectionFactory();
+            RaiseConnectionCreated();
+            if (initialState == InitialConnectionStates.Open)
+                await result.OpenAsync();
 
             return result;
         }
@@ -139,21 +139,30 @@ namespace SqlTools
             return cmd;
         }
 
-
-        private IDbCommand PrepCommand(IDbCommand command, IDbConnection cn)
+        private DbCommand PrepDbCommand(IDbCommand command, IDbConnection cn)
         {
-            if (cn != null)
+            if (!(command is DbCommand dbCommand))
             {
-                command.Connection = cn;
+                throw new ArgumentException("Must be able to cast command to DbCommand", nameof(command));
             }
+
+            if (!(cn is DbConnection dbConnection))
+            {
+                throw new ArgumentException("Must be able to cast command.Connection to DbConnection", nameof(command));
+            }
+
+            dbCommand.Connection = dbConnection;
+            
             // Respect user defined CommandTimeout... only use the DefaultCommandTimeoutInSeconds 
             // if a custom value has not been already set.
-            if (command.CommandTimeout == CommandProviderCommandTimeout)
+            if (dbCommand.CommandTimeout == CommandProviderCommandTimeout)
             {
-                command.CommandTimeout = DefaultCommandTimeoutInSeconds;
+                dbCommand.CommandTimeout = DefaultCommandTimeoutInSeconds;
             }
-            return command;
+            return dbCommand;
         }
+
+        private IDbCommand PrepCommand(IDbCommand command, IDbConnection cn) => PrepDbCommand(command, cn);
 
 
         /// <summary>
@@ -715,11 +724,15 @@ namespace SqlTools
         /// <inheritdoc cref="ExecuteNonQueryAsync(IDbCommand)"/>
         public async Task<int> ExecuteNonQueryAsync(IDbCommand command)
         {
-            using (var cn = GetConnection(InitialConnectionStates.Closed))
+            using (var cn = await GetDbConnectionAsync())
             {
                 PrepCommand(command, cn);
+                if (!(command is DbCommand dbCommand))
+                {
+                    throw new InvalidOperationException("Unable to cast IDbCommand to DbCommand");
+                }
                 await cn.OpenAsync();
-                return await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                return await dbCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -733,11 +746,11 @@ namespace SqlTools
         public async Task<T> ExecuteScalarAsync<T>(IDbCommand command)
         {
             T result = default(T);
-            using (var cn = GetConnection(InitialConnectionStates.Closed))
+            using (var cn = await GetDbConnectionAsync())
             {
-                PrepCommand(command, cn);
+                var dbCommand = PrepDbCommand(command, cn);
                 await cn.OpenAsync().ConfigureAwait(false);
-                var queryResult = await command.ExecuteScalarAsync().ConfigureAwait(false);
+                var queryResult = await dbCommand.ExecuteScalarAsync().ConfigureAwait(false);
                 if (queryResult != null && queryResult != DBNull.Value)
                     result = ChangeType<T>(queryResult);
             }
@@ -754,11 +767,11 @@ namespace SqlTools
         public async Task<TItem[]> ExecuteArrayAsync<TItem>(IDbCommand command, ExecuteArrayOptions options = ExecuteArrayOptions.None)
         {
             var result = new List<TItem>();
-            using (var cn = GetConnection(InitialConnectionStates.Closed))
+            using (var cn = await GetDbConnectionAsync())
             {
-                PrepCommand(command, cn);
+                var dbCommand = PrepDbCommand(command, cn);
                 await cn.OpenAsync();
-                using (var reader = await command.ExecuteReaderAsync())
+                using (var reader = await dbCommand.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
@@ -786,11 +799,11 @@ namespace SqlTools
         public async Task<T> ExecuteSingleAsync<T>(IDbCommand command) where T : new()
         {
             var result = default(T);
-            using (var cn = GetConnection(InitialConnectionStates.Closed))
+            using (var cn = await GetDbConnectionAsync())
             {
-                PrepCommand(command, cn);
+                var dbCommand = PrepDbCommand(command, cn);
                 await cn.OpenAsync().ConfigureAwait(false);
-                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                using (var reader = await dbCommand.ExecuteReaderAsync().ConfigureAwait(false))
                 {
                     var schema = reader.GetSchemaTable();
                     var propInfos = TypeDescriptor.GetProperties(typeof(T));
@@ -813,11 +826,11 @@ namespace SqlTools
         public async Task<IEnumerable<T>> ExecuteMultipleAsync<T>(IDbCommand command) where T : new()
         {
             var result = new List<T>();
-            using (var cn = GetConnection(InitialConnectionStates.Closed))
+            using (var cn = await GetDbConnectionAsync())
             {
-                PrepCommand(command, cn);
+                var dbCommand = PrepDbCommand(command, cn);
                 await cn.OpenAsync().ConfigureAwait(false);
-                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                using (var reader = await dbCommand.ExecuteReaderAsync().ConfigureAwait(false))
                 {
                     var schema = reader.GetSchemaTable();
                     var propInfos = TypeDescriptor.GetProperties(typeof(T));
@@ -836,7 +849,7 @@ namespace SqlTools
         public async Task<IDictionary<TKey, TValue>> ExecuteDictionaryAsync<TKey, TValue>(IDbCommand command)
         {
             var result = new ConcurrentDictionary<TKey, TValue>();
-            using (var cmd = PrepCommand(command, GetConnection(InitialConnectionStates.Closed)))
+            using (var cmd = PrepDbCommand(command, await GetDbConnectionAsync()))
             {
                 await cmd.Connection.OpenAsync().ConfigureAwait(false);
                 using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
@@ -897,10 +910,10 @@ namespace SqlTools
         /// <returns>A data reader containing the results of executing the command.</returns>
         public async Task<IDataReader> ExecuteReaderAsync(IDbCommand command, CommandBehavior behavior)
         {
-            var cn = GetConnection(InitialConnectionStates.Closed);
-            PrepCommand(command, cn);
+            var cn = await GetDbConnectionAsync(InitialConnectionStates.Closed);
+            var dbCommand = PrepDbCommand(command, cn);
             await cn.OpenAsync().ConfigureAwait(false);
-            return await command.ExecuteReaderAsync(behavior).ConfigureAwait(false);
+            return await dbCommand.ExecuteReaderAsync(behavior).ConfigureAwait(false);
         }
 
         private T CreateItem<T>(DataTable schema, IDataReader reader, PropertyDescriptorCollection propInfos) where T : new()
