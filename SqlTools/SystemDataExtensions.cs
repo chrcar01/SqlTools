@@ -1,15 +1,13 @@
 using System;
-using System.Data;
-using System.Data.SqlClient;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 
 namespace SqlTools
 {
-	/// <summary>
-	/// Some helper extensions to built in ADO.NET interface
-	/// </summary>
-	public static class SystemDataExtensions
+    /// <summary>
+    /// Some helper extensions to built in ADO.NET interface
+    /// </summary>
+    public static class SystemDataExtensions
 	{
 		/// <summary>
 		/// Gets the strongly typed value for the columnName out of the current IDataReader.
